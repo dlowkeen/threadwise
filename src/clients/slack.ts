@@ -1,5 +1,5 @@
 import { WebClient, ErrorCode } from '@slack/web-api';
-import { appConfig } from '../utils/config';
+import { config, isSingleWorkspace } from '../utils/config';
 
 interface ThreadMessage {
   ts: string;
@@ -9,16 +9,52 @@ interface ThreadMessage {
   user: string;
 }
 
-class SlackClient {
-  private client: WebClient;
+class SlackClientManager {
+  private static instance: SlackClientManager;
+  private defaultClient?: WebClient;
+  private workspaceClients: Map<string, WebClient> = new Map();
 
-  constructor() {
-    this.client = new WebClient(appConfig.slackBotToken);
+  private constructor() {
+    if (isSingleWorkspace(config.auth)) {
+      this.defaultClient = new WebClient(config.auth.botToken);
+    }
   }
 
-  async getThreadRoots(channelId: string): Promise<ThreadMessage[]> {
+  public static getInstance(): SlackClientManager {
+    if (!SlackClientManager.instance) {
+      SlackClientManager.instance = new SlackClientManager();
+    }
+    return SlackClientManager.instance;
+  }
+
+  private async getClient(workspaceId?: string): Promise<WebClient> {
+    if (isSingleWorkspace(config.auth)) {
+      return this.defaultClient!;
+    }
+
+    if (!workspaceId) {
+      throw new Error('workspaceId is required in multi-workspace mode');
+    }
+
+    if (!this.workspaceClients.has(workspaceId)) {
+      // TODO: Implement database lookup for workspace bot token
+      const workspace = {
+        botToken: 'your_bot_token_here',
+      }; // await db.workspaces.findOne(workspaceId);
+      if (!workspace) {
+        throw new Error(`Workspace ${workspaceId} not found`);
+      }
+      this.workspaceClients.set(workspaceId, new WebClient(workspace.botToken));
+    }
+
+    return this.workspaceClients.get(workspaceId)!;
+  }
+
+  // Thread-related methods now support multi-workspace
+  async getThreadRoots(channelId: string, workspaceId?: string): Promise<ThreadMessage[]> {
     try {
-      const response = await this.client.conversations.history({
+      const client = await this.getClient(workspaceId);
+      const response = await client.conversations.history({
         channel: channelId,
         limit: 100,
       });
@@ -38,9 +74,14 @@ class SlackClient {
     }
   }
 
-  async getThreadMessages(channelId: string, threadTs: string): Promise<ThreadMessage[]> {
+  async getThreadMessages(
+    channelId: string, 
+    threadTs: string, 
+    workspaceId?: string
+  ): Promise<ThreadMessage[]> {
     try {
-      const response = await this.client.conversations.replies({
+      const client = await this.getClient(workspaceId);
+      const response = await client.conversations.replies({
         channel: channelId,
         ts: threadTs,
       });
@@ -57,15 +98,19 @@ class SlackClient {
     }
   }
 
-  async addCheckmark(channelId: string, ts: string): Promise<void> {
+  async addCheckmark(
+    channelId: string, 
+    ts: string, 
+    workspaceId?: string
+  ): Promise<void> {
     try {
-      await this.client.reactions.add({
+      const client = await this.getClient(workspaceId);
+      await client.reactions.add({
         channel: channelId,
         name: 'white_check_mark',
         timestamp: ts,
       });
     } catch (error: any) {
-      // Handle specific Slack API errors
       if (error.code === ErrorCode.PlatformError && error.data?.error === 'already_reacted') {
         return; // Ignore if already reacted
       }
@@ -75,4 +120,4 @@ class SlackClient {
 }
 
 // Export singleton instance
-export const slackClient = new SlackClient();
+export const slackClient = SlackClientManager.getInstance();
