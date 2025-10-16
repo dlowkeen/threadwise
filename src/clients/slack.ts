@@ -1,7 +1,7 @@
 import { WebClient, ErrorCode } from '@slack/web-api';
 import { config, isSingleWorkspace } from '../utils/config';
 
-interface ThreadMessage {
+export interface ThreadMessage {
   ts: string;
   thread_ts?: string;
   reply_count?: number;
@@ -9,7 +9,7 @@ interface ThreadMessage {
   user: string;
 }
 
-class SlackClientManager {
+export class SlackClientManager {
   private static instance: SlackClientManager;
   private defaultClient?: WebClient;
   private workspaceClients: Map<string, WebClient> = new Map();
