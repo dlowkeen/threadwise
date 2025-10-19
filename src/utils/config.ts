@@ -1,5 +1,5 @@
 import { config as dotenvConfig } from 'dotenv';
-import { LLMProvider, LLMConfig } from '@/types/llmProvider.types';
+import { LLMProvider, LLMConfig } from '../types/llmProvider.types';
 
 // Load environment variables from .env file
 dotenvConfig();
