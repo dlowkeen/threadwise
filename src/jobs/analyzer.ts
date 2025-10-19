@@ -95,6 +95,15 @@ export class ThreadAnalyzerJob {
       // Process thread (summarize, analyze, etc)
       // ... your thread processing logic
       console.log("messages", messages);
+
+      // getting full message. 
+      // let messageArray = []
+      // for (const msg of messages){
+      //   messageArray.push(msg.text); 
+      // }
+      // messageArray.join(' '); 
+      // console.log(messageArray); 
+
       // Mark as processed
     //   await this.slackClient.addCheckmark(
     //     channelId,
