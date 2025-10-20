@@ -96,34 +96,31 @@ export class ThreadAnalyzerJob {
       );
       const llmClient: LLMClient = LLMFactory.createClient(config.llm);
 
-      // provide more context to the llm so it can make better decisions about what is going with the issue. 
-      // const enhancedContext = {
-      //   thread: {
-      //     text: thread.text,
-      //     user: thread.user,
-      //     reply_count: thread.reply_count,
-      //     reply_users_count: thread.reply_users_count,
-      //     reply_users: thread.reply_users,
-      //     reactions: thread.reactions,
-      //     is_locked: thread.is_locked
-      //   },
-      //   messages: messages.map(msg => ({
-      //     user: msg.user,
-      //     text: msg.text,
-      //     timestamp: msg.ts
-      //   }))
-      // };
-      
+      const enhancedContext = {
+        thread: {
+          text: thread.text,
+          user: thread.user,
+          reply_count: thread.reply_count,
+          reply_users_count: thread.reply_users_count,
+          reply_users: thread.reply_users,
+          reactions: thread.reactions,
+          is_locked: thread.is_locked
+        },
+        messages: messages.map(msg => ({
+          user: msg.user,
+          text: msg.text,
+          timestamp: msg.ts
+        }))
+      };
 
       const summary = await llmClient.generateResponse([
         {
           role: 'system', 
-          content: 'You are a helpful assistant that summarizes Slack threads.'
+          content: 'You are a Slack thread analyzer. Analyze the thread context including engagement metrics, user participation, and community reactions to provide intelligent insights about the discussion.'
         },
         {
-          role:'user', 
-          content: `Please summarize this thread with key points, decisions made and if there are blockers: \n\n${messages.map(m => `${m.user}: ${m.text}`).join('\n')}`
-          // content: `Analyze this thread: ${JSON.stringify(enhancedContext)}` //provide more context to llm 
+          role: 'user',
+          content: `Analyze this Slack thread and provide a comprehensive summary focusing on key points, decisions made, and blockers. Here's the thread data: ${JSON.stringify(enhancedContext, null, 2)}`
         }
       ]);
 
