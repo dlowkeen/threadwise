@@ -1,4 +1,7 @@
+import { LLMFactory } from '../providers/llmFactory';
 import { slackClient, SlackClientManager, ThreadMessage } from '../clients/slack';
+import { LLMClient } from '../types/llmProvider.types';
+import { config } from '../utils/config'; 
 
 // src/jobs/threadAnalyzer.ts
 interface Workspace {
@@ -61,9 +64,9 @@ export class ThreadAnalyzerJob {
 
         // Process each thread
         for (const thread of threads) {
-          console.log("thread", thread);
+          // console.log("thread", thread);
           if (this.shouldProcessThread(thread, workspace.settings)) {
-            console.log("processing thread", thread);
+            // console.log("processing thread", thread);
             await this.processThread(thread, channelId, workspace);
           }
         }
@@ -91,10 +94,50 @@ export class ThreadAnalyzerJob {
         thread.ts,
         workspace.id
       );
+      const llmClient: LLMClient = LLMFactory.createClient(config.llm);
+
+      const enhancedContext = {
+        thread: {
+          text: thread.text,
+          user: thread.user,
+          reply_count: thread.reply_count,
+          reply_users_count: thread.reply_users_count,
+          reply_users: thread.reply_users,
+          reactions: thread.reactions,
+          is_locked: thread.is_locked
+        },
+        messages: messages.map(msg => ({
+          user: msg.user,
+          text: msg.text,
+          timestamp: msg.ts
+        }))
+      };
+
+      const summary = await llmClient.generateResponse([
+        {
+          role: 'system', 
+          content: 'You are a Slack thread analyzer. Analyze the thread context including engagement metrics, user participation, and community reactions to provide intelligent insights about the discussion.'
+        },
+        {
+          role: 'user',
+          content: `Analyze this Slack thread and provide a comprehensive summary focusing on key points, decisions made, and blockers. Here's the thread data: ${JSON.stringify(enhancedContext, null, 2)}`
+        }
+      ]);
+
+      console.log("Summary:", summary.content);
 
       // Process thread (summarize, analyze, etc)
       // ... your thread processing logic
-      console.log("messages", messages);
+      // console.log("messages", messages);
+
+      // getting full message. 
+      // let messageArray = []
+      // for (const msg of messages){
+      //   messageArray.push(msg.text); 
+      // }
+      // messageArray.join(' '); 
+      // console.log(messageArray); 
+
       // Mark as processed
     //   await this.slackClient.addCheckmark(
     //     channelId,

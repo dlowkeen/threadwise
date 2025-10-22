@@ -1,5 +1,5 @@
-import dotenv from 'dotenv';
 import { config as dotenvConfig } from 'dotenv';
+import { LLMProvider, LLMConfig } from '../types/llmProvider.types';
 
 // Load environment variables from .env file
 dotenvConfig();
@@ -56,6 +56,7 @@ interface AppConfig {
     port: number;
     host: string;
   };
+  llm: LLMConfig;
 }
 
 // Load and validate config
@@ -71,7 +72,16 @@ function loadConfig(): AppConfig {
     server: {
       port: parseInt(process.env.PORT || '3000'),
       host: process.env.HOST || 'localhost'
+    },
+    llm: {
+      provider: (process.env.LLM_PROVIDER as LLMProvider) || 'openrouter', 
+      apiKey: process.env.LLM_API_KEY || '',  
+      model: process.env.LLM_MODEL,           
+      baseUrl: process.env.LLM_BASE_URL, 
+      temperature: process.env.LLM_TEMPERATURE ? parseFloat(process.env.LLM_TEMPERATURE) : undefined,
+      maxTokens: process.env.LLM_MAX_TOKENS ? parseInt(process.env.LLM_MAX_TOKENS) : undefined
     }
+
   };
 
   // Load auth config based on deployment mode

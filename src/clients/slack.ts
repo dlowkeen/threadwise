@@ -7,6 +7,10 @@ export interface ThreadMessage {
   reply_count?: number;
   text: string;
   user: string;
+  reply_users_count?: number;
+  reply_users?: string[];
+  reactions?: string;
+  is_locked?: boolean;
 }
 
 export class SlackClientManager {
@@ -64,9 +68,8 @@ export class SlackClientManager {
       }
 
       return response.messages
-        .filter((msg): msg is ThreadMessage => {
-          return (msg.reply_count ?? 0) > 0;
-        });
+      .filter(msg => (msg.reply_count ?? 0) > 0 && msg.ts)
+      .map(msg => msg as ThreadMessage);
 
     } catch (error) {
       console.error('Error fetching conversation history:', error);
