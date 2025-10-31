@@ -27,10 +27,10 @@ export const questionAnswerPrompt: LLMMessage = {
 
   ALWAYS IGNORE: Jokes, thank yous, reaction messages, side discussions, follow-up questions
 
-  Respond with JSON:
+   IMPORTANT: Respond with JSON in this format only:
   {
-      "summary": "brief summary about what happen. 1-2 sentence max",
-      "status": "resolved|in_progress|unresolved",
+      "summary": "brief summary about what happen. 1 sentence max",
+      "status": "resolved"|"in_progress"|"unresolved",
       "confidence": 0.85
   }
 
@@ -82,10 +82,10 @@ EXTRACT ONLY:
 
   Context rule: Only include debugging steps if tone is serious AND the issue is unresolved.
 
-  Respond with JSON:
+  IMPORTANT: Respond with JSON in this format only:
   {
       "summary": "Concise summary focusing on key decisions, blockers, and current status (2-3 sentences max)",
-      "status": "resolved|in_progress|unresolved",
+      "status": "resolved"|"in_progress"|"unresolved",
       "confidence": 0.85
   }
 
@@ -130,10 +130,10 @@ export const decisionDiscussionPrompt: LLMMessage = {
 
   ALWAYS IGNORE: Jokes, memes, unrelated tangents, personal opinions not related to the decision
 
-  Respond with JSON:
+  IMPORTANT: Respond with JSON in this format only:
   {
       "summary": "Concise summary of the decision topic, key tradeoffs, and final decision (2-3 sentences max)",
-      "status": "decided|in_progress|unresolved",
+      "status": "resolved"|"in_progress"|"unresolved",
       "confidence": 0.85
   }
   IMPORTANT: Focus on actionable decisions and rationale for technical leadership.`,
@@ -159,10 +159,10 @@ export const statusUpdatePrompt: LLMMessage = {
 
   ALWAYS IGNORE: Celebrations, emojis, personal commentary, non-work updates
 
-  Respond with JSON:
+  IMPORTANT: Respond with JSON in this format only:
   {
       "summary": "Brief factual summary of what happened, impact, and next steps (1-2 sentences max)",
-      "status": "completed|in_progress|blocked",
+      "status": "resolved"|"in_progress"|"unresolved",
       "confidence": 0.85
   }
   IMPORTANT: Be factual, concise, and focus on information that affects project planning and resource allocation.`,

@@ -19,14 +19,13 @@ export interface EnhancedThreadContext {
   thread: ThreadInfo;
   messages: MessageInfo[];
 }
-export interface CategoryResponse {
+export interface SummaryResponse {
   summary: string;
-  status: "completed" | "in_progress" | "blocked";
+  status: "resolved" | "in_progress" | "unresolved";
   confidence: number;
 }
 
-// Approach 1
-export interface FilterPrompt {
+export interface CategorizingThread {
   category:
     | "technical_issue"
     | "decision_discussion"
@@ -36,13 +35,3 @@ export interface FilterPrompt {
   tone: "serious" | "neutral" | "playful" | "sarcastic";
   resolution: "resolved" | "unresolved" | "not_applicable";
 }
-
-//   Approach 2
-// export interface FilterPrompt {
-//   category: "casual"
-//   | "quick_resolution"
-//   | "information_sharing"
-//   | "substantive"
-//   confidence: number;
-//   reasoning?: string;
-// };
