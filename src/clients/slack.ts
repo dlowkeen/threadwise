@@ -1,5 +1,6 @@
-import { WebClient, ErrorCode } from "@slack/web-api";
+import { WebClient, ErrorCode, UsersListResponse } from "@slack/web-api";
 import { config, isSingleWorkspace } from "../utils/config";
+import { mapUserNames } from "../helpers/mapUserNames";
 
 export interface ThreadMessage {
   ts: string;
@@ -159,8 +160,8 @@ export class SlackClientManager {
 
       if (response.ok && response.user) {
         return (
-          response.user.profile?.display_name ||
           response.user.profile?.real_name ||
+          response.user.profile?.display_name ||
           response.user.name ||
           "Someone"
         );
@@ -169,6 +170,21 @@ export class SlackClientManager {
     } catch (error) {
       console.warn("Error fetching user info:", error);
       return userId;
+    }
+  }
+
+  async getAllUsersInWorkSpace(
+    workspaceId: string
+  ): Promise<Map<string, string>> {
+    try {
+      const client = await this.getClient(workspaceId);
+      const workspaceUsers = await client.users.list();
+      const workSpaceUsersList = workspaceUsers?.members;
+      const userNameMap = mapUserNames(workSpaceUsersList);
+      return userNameMap;
+    } catch (error) {
+      console.warn(error);
+      throw error;
     }
   }
 
