@@ -7,9 +7,9 @@ import {
 import { LLMClient, LLMMessage } from "../types/llmProvider.types";
 import { config } from "../utils/config";
 import {
-  SummaryResponse,
   EnhancedThreadContext,
   CategorizingThread,
+  SummaryResponse,
 } from "@/types/threadAnalysis.types";
 import { categorizingPrompt } from "../prompts/filterPrompt";
 import {
@@ -149,7 +149,7 @@ export class ThreadAnalyzerJob {
       };
 
       const threadCategorized: CategorizingThread =
-        await this.categorizingThreads(llmClient, enhancedContext);
+        await this.categorizeThreads(llmClient, enhancedContext);
       const { category, tone, resolution } = threadCategorized;
 
       const promptMap = {
@@ -162,7 +162,7 @@ export class ThreadAnalyzerJob {
       console.log(`filteredThread category: ${category}`);
 
       if (!!category && category !== "casual_chat") {
-        return this.summaryResponse(
+        return this.summarizeResponse(
           llmClient,
           promptMap[category],
           threadCategorized,
@@ -179,7 +179,7 @@ export class ThreadAnalyzerJob {
    * @param enhancedContext
    * @returns
    */
-  private async categorizingThreads(
+  private async categorizeThreads(
     llmClient: LLMClient,
     enhancedContext: EnhancedThreadContext
   ): Promise<CategorizingThread> {
@@ -200,7 +200,7 @@ export class ThreadAnalyzerJob {
     }
   }
 
-  private async summaryResponse(
+  private async summarizeResponse(
     llmClient: LLMClient,
     prompt: LLMMessage,
     filteredThreadCategory: CategorizingThread,

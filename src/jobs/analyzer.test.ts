@@ -7,6 +7,7 @@ import { config as dotenvConfig } from "dotenv";
 import { questionAnswerPrompt } from "../prompts/categoriesPrompts";
 dotenvConfig();
 
+// These unit tests make actually API Calls to an LLM. They're not mocked. You'll need a LLM API Key in order to run.  
 describe("ThreadAnalyzerJob", () => {
   let LLMClient: LLMClient;
   let threadAnalyzer: ThreadAnalyzerJob;
@@ -16,12 +17,12 @@ describe("ThreadAnalyzerJob", () => {
     LLMClient = LLMFactory.createClient(config.llm);
   });
 
-  describe("categorizingThreads", () => {
+  describe("categorizeThreads", () => {
     describe("With a question and answer thread message", () => {
       it("Should return a valid JSON object with category, tone, resolution and category = question_answer", async () => {
         const questionAnswerResponse = await (
           threadAnalyzer as any
-        ).categorizingThreads(LLMClient, questionAnswerContext);
+        ).categorizeThreads(LLMClient, questionAnswerContext);
 
         expect(questionAnswerResponse).toHaveProperty("category");
         expect(questionAnswerResponse).toHaveProperty("tone");
@@ -36,7 +37,7 @@ describe("ThreadAnalyzerJob", () => {
     });
   });
 
-  describe("summaryResponse", () => {
+  describe("summarizeResponse", () => {
     describe("Takes a question & answer prompt, category, tone, resolution and thread message", () => {
       it("returns a question & answer response stating thread resolved and 500 errors and 30 second solution", async () => {
         const threadCategorized = {
@@ -47,7 +48,7 @@ describe("ThreadAnalyzerJob", () => {
 
         const questionAnswerResponse = await (
           threadAnalyzer as any
-        ).summaryResponse(
+        ).summarizeResponse(
           LLMClient,
           questionAnswerPrompt,
           threadCategorized,
