@@ -19,6 +19,8 @@ import {
   statusUpdatePrompt,
 } from "../prompts/categoriesPrompts";
 import { FallbackEncoder } from "openai/internal/request-options";
+import { MESSAGE_STATUSES } from "../constants/statuses";
+import { buildResolvedSummary } from "../helpers/buildResolvedSummary";
 
 // src/jobs/threadAnalyzer.ts
 interface Workspace {
@@ -173,25 +175,9 @@ export class ThreadAnalyzerJob {
         );
 
         const { summary, status } = summarizedResponse;
-        if (status === "resolved") {
-          const resolvedSummary = {
-            blocks: [
-              {
-                type: "section",
-                text: {
-                  type: "mrkdwn",
-                  text: "✅ *Thread Resolved!*",
-                },
-              },
-              {
-                type: "section",
-                text: {
-                  type: "mrkdwn",
-                  text: `*Summary:*\n${summary}`,
-                },
-              },
-            ],
-          };
+        // Return formatted resolved, unresolved or in progress summary for slack base on the status.
+        const resolvedSummary = buildResolvedSummary(summarizedResponse);
+        if (status === MESSAGE_STATUSES.RESOLVED) {
           await this.slackClient.postStatusUpdate({
             channelId,
             resolvedSummary,
@@ -204,35 +190,11 @@ export class ThreadAnalyzerJob {
             thread.ts,
             workspace.id
           );
-        } else if (status === "unresolved" || status === "in_progress") {
-          const unResolvedSummary = {
-            blocks: [
-              {
-                type: "section",
-                text: {
-                  type: "mrkdwn",
-                  text: "⚠️ *Issue Still Unresolved*",
-                },
-              },
-              {
-                type: "section",
-                text: {
-                  type: "mrkdwn",
-                  text: `*Summary:*\n${summary}`,
-                },
-              },
-              {
-                type: "section",
-                text: {
-                  type: "mrkdwn",
-                  text: "_Anyone have an update on this?_",
-                },
-              },
-            ],
-          };
+        } else if (status === MESSAGE_STATUSES.UNRESOLVED || status === MESSAGE_STATUSES.IN_PROGRESS) {
+          
           await this.slackClient.postStatusUpdate({
             channelId,
-            resolvedSummary: unResolvedSummary,
+            resolvedSummary,
             threadTs: thread.ts,
             workspaceId: workspace.id,
             fallBackSummary: summary,

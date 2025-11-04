@@ -192,24 +192,24 @@ export class SlackClientManager {
     }
   }
 
-  async removeMessage(
-    channelId: string,
-    workspaceId: string,
-    ts: string
-  ): Promise<void> {
-    const no_p = ts.substring(1); // remove 'p' -> '1761273885443439'
-    const timestamp = no_p.slice(0, 10) + "." + no_p.slice(10);
+  // async removeMessage(
+  //   channelId: string,
+  //   workspaceId: string,
+  //   ts: string
+  // ): Promise<void> {
+  //   const no_p = ts.substring(1); // remove 'p' -> '1761273885443439'
+  //   const timestamp = no_p.slice(0, 10) + "." + no_p.slice(10);
 
-    try {
-      const client = await this.getClient(workspaceId);
-      await client.chat.delete({
-        channel: channelId,
-        ts: timestamp,
-      });
-    } catch (error) {
-      console.error(`Cannot delete message: ${error}`);
-    }
-  }
+  //   try {
+  //     const client = await this.getClient(workspaceId);
+  //     await client.chat.delete({
+  //       channel: channelId,
+  //       ts: timestamp,
+  //     });
+  //   } catch (error) {
+  //     console.error(`Cannot delete message: ${error}`);
+  //   }
+  // }
 }
 
 // Export singleton instance
