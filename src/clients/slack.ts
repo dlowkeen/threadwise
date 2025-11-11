@@ -2,6 +2,8 @@ import { WebClient, ErrorCode, UsersListResponse } from "@slack/web-api";
 import { config, isSingleWorkspace } from "../utils/config";
 import { mapUserNames } from "../helpers/mapUserNames";
 import { KnownBlock, Block } from "@slack/types";
+import { filterHasEmoji } from "../helpers/filterEmoji";
+import { WHITE_CHECK_MARK } from "../constants/statuses";
 
 export interface ThreadMessage {
   ts: string;
@@ -78,6 +80,7 @@ export class SlackClientManager {
 
       return response.messages
         .filter((msg) => (msg.reply_count ?? 0) > 0 && msg.ts)
+        .filter(msg => !filterHasEmoji(msg as ThreadMessage, WHITE_CHECK_MARK))
         .map((msg) => msg as ThreadMessage);
     } catch (error) {
       console.error("Error fetching conversation history:", error);
