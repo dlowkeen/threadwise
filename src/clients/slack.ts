@@ -11,7 +11,11 @@ export interface ThreadMessage {
   user: string;
   reply_users_count?: number;
   reply_users?: string[];
-  reactions?: string;
+  reactions?: Array<{
+    name: string;
+    users: string[];
+    counter: number;
+  }>;
   is_locked?: boolean;
 }
 

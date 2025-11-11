@@ -157,7 +157,7 @@ export class WorkspaceAnalyzer {
           reply_count: thread.reply_count,
           reply_users_count: thread.reply_users_count,
           reply_users: thread.reply_users,
-          reactions: thread.reactions,
+          reactions: thread.reactions, //this is just the root reactions.
           is_locked: thread.is_locked,
         },
         messages: await Promise.all(
