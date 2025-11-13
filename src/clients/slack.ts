@@ -80,7 +80,9 @@ export class SlackClientManager {
 
       return response.messages
         .filter((msg) => (msg.reply_count ?? 0) > 0 && msg.ts)
-        .filter(msg => !filterHasEmoji(msg as ThreadMessage, WHITE_CHECK_MARK))
+        .filter(
+          (msg) => !filterHasEmoji(msg as ThreadMessage, WHITE_CHECK_MARK)
+        )
         .map((msg) => msg as ThreadMessage);
     } catch (error) {
       console.error("Error fetching conversation history:", error);

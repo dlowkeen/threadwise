@@ -39,3 +39,9 @@ export interface CategorizingThread {
   tone: "serious" | "neutral" | "playful" | "sarcastic";
   resolution: "resolved" | "unresolved" | "not_applicable";
 }
+
+export type JiraTask = {
+  title: string;
+  summary: string;
+  description: string;
+};
