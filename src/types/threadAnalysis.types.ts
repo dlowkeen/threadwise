@@ -40,8 +40,11 @@ export interface CategorizingThread {
   resolution: "resolved" | "unresolved" | "not_applicable";
 }
 
-export type JiraTask = {
-  title: string;
+export interface JiraTasks {
   summary: string;
   description: string;
-};
+}
+
+export interface JiraTasksObj {
+  tasks: JiraTasks[];
+}

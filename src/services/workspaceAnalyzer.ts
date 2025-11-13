@@ -9,8 +9,8 @@ import {
   EnhancedThreadContext,
   CategorizingThread,
   SummaryResponse,
-  JiraTask,
 } from "@/types/threadAnalysis.types";
+import { JiraTasks, JiraTasksObj } from "@/types/jira.types";
 import { categorizingPrompt } from "../prompts/filterPrompt";
 import {
   questionAnswerPrompt,
@@ -21,6 +21,7 @@ import {
 import { MESSAGE_STATUSES } from "../constants/statuses";
 import { buildResolvedSummary } from "../helpers/buildResolvedSummary";
 import { taskExtractionPrompt } from "../prompts/filterPrompt";
+import { jiraClient, JiraClientManager } from "../clients/jira";
 
 interface Workspace {
   id: string;
@@ -194,12 +195,14 @@ export class WorkspaceAnalyzer {
       if (!!category && category !== "casual_chat") {
         //  still need to handle the case here of resolution being resolved.
         //what if they are not summarized yet but they're turn out to be resolved. We don't want to create jira ticket for those.
-        const extractedTask = await this.extractTasks(
+        const extractedTask: JiraTasksObj = await this.extractTasks(
           llmClient,
           taskExtractionPrompt,
           enhancedContext
         );
         console.log(extractedTask);
+        await jiraClient.createIssueInBacklog(workspace.id, extractedTask);
+
         const summarizedResponse = await this.summarizeResponse(
           llmClient,
           promptMap[category],
@@ -211,29 +214,29 @@ export class WorkspaceAnalyzer {
         const resolvedSummary = buildResolvedSummary(summarizedResponse);
 
         if (status === MESSAGE_STATUSES.RESOLVED) {
-          // await this.slackClient.postStatusUpdate({
-          //   channelId,
-          //   resolvedSummary,
-          //   threadTs: thread.ts,
-          //   workspaceId: workspace.id,
-          //   fallBackSummary: summary,
-          // });
-          // await this.slackClient.addCheckmark(
-          //   channelId,
-          //   thread.ts,
-          //   workspace.id
-          // );
+          await this.slackClient.postStatusUpdate({
+            channelId,
+            resolvedSummary,
+            threadTs: thread.ts,
+            workspaceId: workspace.id,
+            fallBackSummary: summary,
+          });
+          await this.slackClient.addCheckmark(
+            channelId,
+            thread.ts,
+            workspace.id
+          );
         } else if (
           status === MESSAGE_STATUSES.UNRESOLVED ||
           status === MESSAGE_STATUSES.IN_PROGRESS
         ) {
-          // await this.slackClient.postStatusUpdate({
-          //   channelId,
-          //   resolvedSummary,
-          //   threadTs: thread.ts,
-          //   workspaceId: workspace.id,
-          //   fallBackSummary: summary,
-          // });
+          await this.slackClient.postStatusUpdate({
+            channelId,
+            resolvedSummary,
+            threadTs: thread.ts,
+            workspaceId: workspace.id,
+            fallBackSummary: summary,
+          });
         }
       }
     } catch (error) {
@@ -292,7 +295,7 @@ export class WorkspaceAnalyzer {
     llmClient: LLMClient,
     prompt: LLMMessage,
     enhancedContext: EnhancedThreadContext
-  ): Promise<JiraTask> {
+  ): Promise<JiraTasksObj> {
     try {
       const extractedTask = await llmClient.generateResponse([
         prompt,
@@ -309,8 +312,3 @@ export class WorkspaceAnalyzer {
     }
   }
 }
-
-//create the llm to b able to process the message. and return a jira ticket.
-
-// need function to extract tasks with llm
-// another function to make a api call with the extract tasks to jira.
