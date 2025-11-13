@@ -214,14 +214,14 @@ export class WorkspaceAnalyzer {
         const resolvedSummary = buildResolvedSummary(summarizedResponse);
 
         if (status === MESSAGE_STATUSES.RESOLVED) {
-          await this.slackClient.postStatusUpdate({
+          await slackClient.postStatusUpdate({
             channelId,
             resolvedSummary,
             threadTs: thread.ts,
             workspaceId: workspace.id,
             fallBackSummary: summary,
           });
-          await this.slackClient.addCheckmark(
+          await slackClient.addCheckmark(
             channelId,
             thread.ts,
             workspace.id
@@ -230,7 +230,7 @@ export class WorkspaceAnalyzer {
           status === MESSAGE_STATUSES.UNRESOLVED ||
           status === MESSAGE_STATUSES.IN_PROGRESS
         ) {
-          await this.slackClient.postStatusUpdate({
+          await slackClient.postStatusUpdate({
             channelId,
             resolvedSummary,
             threadTs: thread.ts,
