@@ -85,9 +85,9 @@ patches:
 
 # Set image tag for prod
 images:
-  - name: your-registry/threadwise
-    newName: your-registry/threadwise
-    newTag: latest
+  - name: devlowkeen/threadwise
+    newName: devlowkeen/threadwise
+    newTag: 0.0.1
 
 # Common labels for prod
 labels:

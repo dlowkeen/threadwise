@@ -68,9 +68,9 @@ patches:
 
 # Set image tag for dev
 images:
-  - name: your-registry/threadwise
-    newName: your-registry/threadwise
-    newTag: dev
+  - name: devlowkeen/threadwise
+    newName: devlowkeen/threadwise
+    newTag: 0.0.1
 
 # Common labels for dev
 labels:
