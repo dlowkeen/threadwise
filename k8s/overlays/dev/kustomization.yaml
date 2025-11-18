@@ -6,7 +6,7 @@ namespace: threadwise-dev
 resources:
   - ../../base
   # SOPS-encrypted secrets (create from template)
-  - secrets.yaml
+  # - secrets.yaml
 
 # Patch ConfigMap values for dev
 patches:

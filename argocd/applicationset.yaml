@@ -1,3 +1,6 @@
+# NOTE: ArgoCD does not watch this file. It is what triggers argocd to watch the k8s/overlays directories.
+# If you make changes to this, you need to manually apply the manifest
+
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
@@ -10,11 +13,11 @@ spec:
           - env: dev
             namespace: threadwise-dev
             autoSync: "true"
-            branch: main
+            branch: deploy
           - env: prod
             namespace: threadwise-prod
             autoSync: "false"  # Manual sync for production
-            branch: main
+            branch: deploy
   
   template:
     metadata:
