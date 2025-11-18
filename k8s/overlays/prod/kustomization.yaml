@@ -1,0 +1,95 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: threadwise-prod
+
+resources:
+  - ../../base
+  # SOPS-encrypted secrets (create from template)
+  - secrets.yaml
+
+# Patch ConfigMap values for prod
+patches:
+  - target:
+      kind: Namespace
+    patch: |-
+      - op: replace
+        path: /metadata/name
+        value: threadwise-prod
+  
+  - target:
+      kind: ConfigMap
+      name: threadwise-config
+    patch: |-
+      - op: replace
+        path: /data/NODE_ENV
+        value: "production"
+      - op: replace
+        path: /data/DEPLOYMENT_MODE
+        value: "single"
+      - op: replace
+        path: /data/EXECUTION_MODE
+        value: "kubernetes"
+      - op: replace
+        path: /data/LOG_LEVEL
+        value: "INFO"
+      - op: replace
+        path: /data/RUN_ON_START
+        value: "false"
+      - op: replace
+        path: /data/K8S_NAMESPACE
+        value: "threadwise-prod"
+      - op: replace
+        path: /data/K8S_IMAGE_TAG
+        value: "latest"
+      - op: replace
+        path: /data/API_URL
+        value: "http://threadwise-api.threadwise-prod.svc.cluster.local:3000"
+  
+  - target:
+      kind: Deployment
+      name: threadwise-api
+    patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 3
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/memory
+        value: "512Mi"
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/cpu
+        value: "500m"
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/memory
+        value: "1Gi"
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/cpu
+        value: "1000m"
+  
+  - target:
+      kind: Deployment
+      name: threadwise-cron
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/memory
+        value: "256Mi"
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/cpu
+        value: "200m"
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/memory
+        value: "512Mi"
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/cpu
+        value: "500m"
+
+# Set image tag for prod
+images:
+  - name: your-registry/threadwise
+    newName: your-registry/threadwise
+    newTag: latest
+
+# Common labels for prod
+labels:
+  - pairs:
+      environment: prod
