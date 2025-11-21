@@ -10,10 +10,10 @@ spec:
   generators:
     - list:
         elements:
-          - env: dev
-            namespace: threadwise-dev
-            autoSync: "true"
-            branch: deploy
+          # - env: dev
+          #   namespace: threadwise-dev
+          #   autoSync: "true"
+          #   branch: deploy
           - env: prod
             namespace: threadwise-prod
             autoSync: "false"  # Manual sync for production
