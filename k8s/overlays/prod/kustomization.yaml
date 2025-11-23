@@ -5,8 +5,6 @@ namespace: threadwise-prod
 
 resources:
   - ../../base
-  # SOPS-encrypted secrets
-  - secrets.yaml
   # Ingress for external access
   - ingress.yaml
 
