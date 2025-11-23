@@ -5,8 +5,8 @@ namespace: threadwise-prod
 
 resources:
   - ../../base
-  # SOPS-encrypted secrets (create from template)
-  # - secrets.yaml
+  # SOPS-encrypted secrets
+  - secrets.yaml
 
 # Patch ConfigMap values for prod
 patches:
