@@ -129,23 +129,48 @@ spec:
                 configMapKeyRef:
                   name: threadwise-config
                   key: API_URL
+            - name: JIRA_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: threadwise-config
+                  key: JIRA_BASE_URL
+            - name: JIRA_EMAIL
+              valueFrom:
+                configMapKeyRef:
+                  name: threadwise-config
+                  key: JIRA_EMAIL
+            - name: JIRA_PROJECT_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: threadwise-config
+                  key: JIRA_PROJECT_KEY
+            - name: JIRA_BOARD_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: threadwise-config
+                  key: JIRA_BOARD_ID
             
             # Secrets from External Secrets Operator (or regular secrets)
             - name: SLACK_BOT_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: threadwise-secrets
-                  key: slack-bot-token
+                  key: SLACK_BOT_TOKEN
             - name: SLACK_CHANNEL_ID
               valueFrom:
                 secretKeyRef:
                   name: threadwise-secrets
-                  key: slack-channel-id
+                  key: SLACK_CHANNEL_ID
             - name: LLM_API_KEY
               valueFrom:
                 secretKeyRef:
                   name: threadwise-secrets
-                  key: llm-api-key
+                  key: LLM_API_KEY
+            - name: JIRA_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: threadwise-secrets
+                  key: JIRA_API_TOKEN
           
           resources:
             requests:

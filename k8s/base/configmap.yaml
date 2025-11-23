@@ -39,6 +39,12 @@ data:
   # API URL (for jobs to call back)
   API_URL: "http://threadwise-api.threadwise.svc.cluster.local:3000"
   
+  # JIRA Integration (non-sensitive)
+  JIRA_BASE_URL: ""
+  JIRA_EMAIL: ""
+  JIRA_PROJECT_KEY: ""
+  JIRA_BOARD_ID: ""
+  
   # Logging
   LOG_LEVEL: "INFO"
 

@@ -45,6 +45,24 @@ patches:
       - op: replace
         path: /data/API_URL
         value: "http://threadwise-api.threadwise-prod.svc.cluster.local:3000"
+      - op: replace
+        path: /data/JIRA_BASE_URL
+        value: "https://hyengineermike.atlassian.net"
+      - op: replace
+        path: /data/JIRA_EMAIL
+        value: "devlowkeen@gmail.com"
+      - op: replace
+        path: /data/JIRA_PROJECT_KEY
+        value: "SCRUM"
+      - op: replace
+        path: /data/JIRA_BOARD_ID
+        value: "1"
+      - op: replace
+        path: /data/LLM_PROVIDER
+        value: "openai"
+      - op: replace
+        path: /data/LLM_MODEL
+        value: "gpt-4o-mini"
   
   - target:
       kind: Deployment
