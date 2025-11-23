@@ -7,6 +7,8 @@ resources:
   - ../../base
   # SOPS-encrypted secrets
   - secrets.yaml
+  # Ingress for external access
+  - ingress.yaml
 
 # Patch ConfigMap values for prod
 patches:
