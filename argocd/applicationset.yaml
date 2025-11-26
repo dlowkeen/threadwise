@@ -10,14 +10,15 @@ spec:
   generators:
     - list:
         elements:
+        # # this is commented out cause we dont need a dev env jsut yet
           # - env: dev
           #   namespace: threadwise-dev
           #   autoSync: "true"
-          #   branch: deploy
+          #   branch: main
           - env: prod
             namespace: threadwise-prod
             autoSync: "false"  # Manual sync for production
-            branch: deploy
+            branch: main
   
   template:
     metadata:
