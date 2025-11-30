@@ -51,10 +51,19 @@ jobs:
           platforms: |
             linux/amd64
           tags: | 
+            ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKERHUB_PROJECT_NAME }}: ${{ github.sha }}
             ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKERHUB_PROJECT_NAME }}:latest 
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
 
-      
-
-    
+      - name: Setup Respository Dispatch
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKENS }}
+          event-type: built_image
+          client-payload: |
+            {
+              "image_sha": ${{ github.sha }}
+              "image_name": ${{ secrets.DOCKERHUB_PROJECT_NAME }}
+              "docker_username: ${{ secrets.DOCKER_USERNAME }}
+            }   
