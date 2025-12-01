@@ -1,0 +1,43 @@
+name: change_manifest_image
+on: 
+  repository_dispatch:
+    types: [built_image]
+
+
+jobs:
+  update:
+    name: Update Manifest with New Image
+    runs-on: ubuntu-latest
+  
+    steps: 
+      - name: Checkout the source code
+        uses: actions/checkout@v5
+        with: 
+          token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: true 
+           
+
+      - name: Extract image SHA
+        run: |
+          echo "IMAGE_SHA=${{ github.event.client_payload.build_image.image_sha }}" >> $GITHUB_ENV
+          echo "IMAGE_NAME=${{ github.event.client_payload.build_image.image_name }}" >> $GITHUB_ENV
+          echo "DOCKER_USERNAME=${{ github.event.client_payload.build_image.docker_username }}" >> $GITHUB_ENV
+
+      - name: Update Deployment Manifest
+        run: |
+            IMAGE_PATH="$DOCKER_USERNAME/$IMAGE_NAME:$IMAGE_SHA"
+            echo "IMAGE_PATH=$IMAGE_PATH"
+            sed -i "s#image: ${DOCKER_USERNAME}/${IMAGE_NAME}:.*#image: ${IMAGE_PATH}#" k8s/base/api-deployment.yaml
+        
+      - name: Verify Change
+        run: |
+          echo "Updating deployment yaml"
+          grep "image: " k8s/base/api-deployment.yaml
+
+      - name: Push changes to repository
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add k8s/base/api-deployment.yaml
+          git commit -m "Updating k8s manifest image"
+          git push https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main

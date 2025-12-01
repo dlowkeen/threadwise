@@ -5,7 +5,7 @@ on:
       - 'k8s'
       - 'argocd'
     types:
-      -closed
+      - closed
         
 jobs:
   if_merged:
@@ -29,11 +29,11 @@ jobs:
           key: ${{ runner.os }}-buildx-${{ github.sha }} 
           restore-keys: ${{ runner.os }}-buildx-setup
 
-      - name: cachd npm dependencies 
-        uses: actions/cache@4
+      - name: cached npm dependencies 
+        uses: actions/cache@v4
         with: 
           path: ~/.npm 
-          key: ${{ runner.os}}-npm-${{ hashfiles('**/package-lock.json') }}
+          key: ${{ runner.os}}-npm-${{ hashFiles('**/package-lock.json') }}
           restore-keys: ${{ runner.os }}-npm-
 
       - name: Login to Docker Hub
@@ -51,19 +51,19 @@ jobs:
           platforms: |
             linux/amd64
           tags: | 
-            ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKERHUB_PROJECT_NAME }}: ${{ github.sha }}
+            ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKERHUB_PROJECT_NAME }}:${{ github.sha }}
             ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKERHUB_PROJECT_NAME }}:latest 
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
 
-      - name: Setup Respository Dispatch
+      - name: Setup Repository Dispatch
         uses: peter-evans/repository-dispatch@v3
         with:
-          token: ${{ secrets.GITHUB_TOKENS }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           event-type: built_image
           client-payload: |
             {
-              "image_sha": ${{ github.sha }}
-              "image_name": ${{ secrets.DOCKERHUB_PROJECT_NAME }}
-              "docker_username: ${{ secrets.DOCKER_USERNAME }}
+              "image_sha": "${{ github.sha }}",
+              "image_name": "${{ secrets.DOCKERHUB_PROJECT_NAME }}",
+              "docker_username": "${{ secrets.DOCKER_USERNAME }}"
             }   
