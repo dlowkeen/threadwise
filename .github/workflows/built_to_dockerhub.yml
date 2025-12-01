@@ -63,7 +63,5 @@ jobs:
           event-type: built_image
           client-payload: |
             {
-              "image_sha": "${{ github.sha }}",
-              "image_name": "${{ secrets.DOCKERHUB_PROJECT_NAME }}",
-              "docker_username": "${{ secrets.DOCKER_USERNAME }}"
+              "image_sha": "${{ github.sha }}"
             }   

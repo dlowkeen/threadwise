@@ -20,24 +20,21 @@ jobs:
       - name: Extract image SHA
         run: |
           echo "IMAGE_SHA=${{ github.event.client_payload.image_sha }}" >> $GITHUB_ENV
-          echo "IMAGE_NAME=${{ github.event.client_payload.image_name }}" >> $GITHUB_ENV
-          echo "DOCKER_USERNAME=${{ github.event.client_payload.docker_username }}" >> $GITHUB_ENV
 
-      - name: Update Deployment Manifest
+      - name: Update Kustomization
         run: |
-            IMAGE_PATH="$DOCKER_USERNAME/$IMAGE_NAME:$IMAGE_SHA"
-            echo "IMAGE_PATH=$IMAGE_PATH"
-            sed -i "s#image: ${DOCKER_USERNAME}/${IMAGE_NAME}:.*#image: ${IMAGE_PATH}#" k8s/base/api-deployment.yaml
+            echo "Updating Image tag to: $IMAGE_SHA"
+            sed -i "s#newTag: .*#newTag: $IMAGE_SHA#" k8s/overlays/prod/kustomization.yaml
         
       - name: Verify Change
         run: |
           echo "Updating deployment yaml"
-          grep "image: " k8s/base/api-deployment.yaml
+          grep "newTag: " k8s/overlays/prod/kustomization.yaml
 
       - name: Push changes to repository
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add k8s/base/api-deployment.yaml
+          git add k8s/overlays/prod/kustomization.yaml
           git commit -m "Updating k8s manifest image"
           git push https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main
