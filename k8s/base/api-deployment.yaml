@@ -21,7 +21,7 @@ spec:
       serviceAccountName: threadwise-api
       containers:
         - name: api
-          image: hyengineermike/threadwise:latest
+          image: your-registry/threadwise:latest
           imagePullPolicy: Always
           ports:
             - name: http
