@@ -19,9 +19,9 @@ jobs:
 
       - name: Extract image SHA
         run: |
-          echo "IMAGE_SHA=${{ github.event.client_payload.build_image.image_sha }}" >> $GITHUB_ENV
-          echo "IMAGE_NAME=${{ github.event.client_payload.build_image.image_name }}" >> $GITHUB_ENV
-          echo "DOCKER_USERNAME=${{ github.event.client_payload.build_image.docker_username }}" >> $GITHUB_ENV
+          echo "IMAGE_SHA=${{ github.event.client_payload.image_sha }}" >> $GITHUB_ENV
+          echo "IMAGE_NAME=${{ github.event.client_payload.image_name }}" >> $GITHUB_ENV
+          echo "DOCKER_USERNAME=${{ github.event.client_payload.docker_username }}" >> $GITHUB_ENV
 
       - name: Update Deployment Manifest
         run: |
