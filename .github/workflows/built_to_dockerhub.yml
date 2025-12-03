@@ -51,8 +51,8 @@ jobs:
           platforms: |
             linux/amd64
           tags: | 
-            ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKERHUB_PROJECT_NAME }}:${{ github.sha }}
-            ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKERHUB_PROJECT_NAME }}:latest 
+            ${{ secrets.DOCKER_USERNAME }}/threadwise:${{ github.sha }}
+            ${{ secrets.DOCKER_USERNAME }}/threadwise:latest 
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
 
