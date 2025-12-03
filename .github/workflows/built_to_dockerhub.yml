@@ -2,8 +2,8 @@ name: built_to_dockerhub
 on:  
   pull_request:
     paths-ignore:
-      - 'k8s'
-      - 'argocd'
+      - 'k8s/**'
+      - 'argocd/**'
     types:
       - closed
         
@@ -33,7 +33,7 @@ jobs:
         uses: actions/cache@v4
         with: 
           path: ~/.npm 
-          key: ${{ runner.os}}-npm-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
           restore-keys: ${{ runner.os }}-npm-
 
       - name: Login to Docker Hub
