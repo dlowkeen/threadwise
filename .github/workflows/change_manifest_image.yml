@@ -26,7 +26,13 @@ jobs:
       - name: Update Kustomization
         run: |
             echo "Updating Image tag to: $IMAGE_SHA"
+            # Update the image tag
             sed -i "s#newTag: .*#newTag: $IMAGE_SHA#" k8s/overlays/prod/kustomization.yaml
+            # Update image name to use threadwise-api (since we split into separate images)
+            # Only update if it's still the old name (not already threadwise-api or threadwise-cron)
+            if grep -q "newName: devlowkeen/threadwise$" k8s/overlays/prod/kustomization.yaml; then
+              sed -i "s#newName: devlowkeen/threadwise$#newName: devlowkeen/threadwise-api#" k8s/overlays/prod/kustomization.yaml
+            fi
         
       - name: Verify Change
         run: |
