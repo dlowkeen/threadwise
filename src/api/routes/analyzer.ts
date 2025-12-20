@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { WorkspaceAnalyzer } from "../services/workspaceAnalyzer";
+import { WorkspaceAnalyzer } from "../../shared/services/workspaceAnalyzer";
 
 const router = Router();
 const analyzer = new WorkspaceAnalyzer();
