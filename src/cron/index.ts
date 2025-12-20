@@ -1,7 +1,7 @@
 import cron from "node-cron";
 import { config } from "../shared/utils/config";
-import { ExecutionAdapter } from "../shared/adapters/executionAdapter";
-import { ExecutionAdapterFactory } from "../shared/adapters/executionAdapterFactory";
+import { ExecutionAdapter } from "./adapters/executionAdapter";
+import { ExecutionAdapterFactory } from "./adapters/executionAdapterFactory";
 
 interface Workspace {
   id: string;

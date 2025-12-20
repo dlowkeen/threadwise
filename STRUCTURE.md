@@ -13,16 +13,19 @@ threadwise/
 │   │       └── analyzer.ts
 │   │
 │   ├── cron/                   # Cron orchestrator entry point
-│   │   └── index.ts            # Cron scheduler (main entry)
+│   │   ├── index.ts            # Cron scheduler (main entry)
+│   │   └── adapters/           # Execution adapters (in-memory, K8s)
+│   │       ├── executionAdapter.ts
+│   │       ├── executionAdapterFactory.ts
+│   │       ├── inMemoryAdapter.ts
+│   │       └── kubernetesAdapter.ts
 │   │
 │   └── shared/                 # Shared code used by both services
-│       ├── adapters/           # Execution adapters (in-memory, K8s)
 │       ├── clients/            # External API clients (Slack, Jira)
 │       ├── constants/          # Constants and enums
 │       ├── helpers/            # Utility functions
 │       ├── prompts/            # LLM prompts
 │       ├── providers/          # LLM provider implementations
-│       ├── scripts/            # Standalone scripts (K8s job workers)
 │       ├── services/           # Business logic services
 │       ├── types/              # TypeScript type definitions
 │       └── utils/              # Configuration and utilities
@@ -50,6 +53,10 @@ threadwise/
   - Fetches all workspaces
   - Dispatches analysis jobs via execution adapters
   - Supports in-memory or Kubernetes execution modes
+- **Adapters** (`src/cron/adapters/`):
+  - **InMemoryAdapter**: Makes direct HTTP calls to the API service
+  - **KubernetesAdapter**: Creates K8s Jobs that call the API service
+  - **ExecutionAdapterFactory**: Factory to create the appropriate adapter based on config
 
 ### Shared Code (`src/shared/`)
 All common functionality used by both services:

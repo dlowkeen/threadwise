@@ -1,6 +1,6 @@
 import * as k8s from "@kubernetes/client-node";
 import { ExecutionAdapter, WorkspaceExecutionResult } from "./executionAdapter";
-import { config } from "../utils/config";
+import { config } from "../../shared/utils/config";
 
 export class KubernetesAdapter implements ExecutionAdapter {
   private k8sApi: k8s.BatchV1Api;
