@@ -184,6 +184,10 @@ function loadConfig(): AppConfig {
     if (!process.env.SLACK_CLIENT_ID || !process.env.SLACK_CLIENT_SECRET) {
       throw new Error(
         "SLACK_CLIENT_ID and SLACK_CLIENT_SECRET are required in multi workspace mode"
+
+        // both slack client id and slack client secrets are generate by going to the slack website and
+        // create a app. They will then get those variables and put it in env which would then
+        // you would then go to app and get the bot token .
       );
     }
 
