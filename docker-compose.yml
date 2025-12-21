@@ -1,7 +1,35 @@
 services:
+
+  postgres:
+    image: postgres:18-alpine
+    container_name: threadwise-postgres
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-threadwise}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
   threadwise:
     build: .
     ports:
       - "3000:3000"
     env_file:
       - ./.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+        - DATABASE_URL=postgresql://${POSTGRES_USER:-threadwise}:${POSTGRES_PASSWORD:-threadwise_password}@postgres:5432/${POSTGRES_DB:-threadwise}
+
+volumes:
+  postgres_data:
