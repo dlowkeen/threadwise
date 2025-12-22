@@ -105,7 +105,7 @@ patches:
 images:
   - name: your-registry/threadwise  # ← Must match what's in base
     newName: devlowkeen/threadwise   # ← Replace with your registry
-    newTag: 80fa05d65fc84e42a20bad85ad1d83427e85e72f
+    newTag: 01eb5a6915c0c3028ea05ce3bf71a2f5dc5cfb51
 
 # Common labels for prod
 labels:
