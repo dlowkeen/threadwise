@@ -1,6 +1,6 @@
 import axios from "axios";
 import { ExecutionAdapter, WorkspaceExecutionResult } from "./executionAdapter";
-import { config } from "../utils/config";
+import { config } from "../../shared/utils/config";
 
 export class InMemoryAdapter implements ExecutionAdapter {
   private apiUrl: string;

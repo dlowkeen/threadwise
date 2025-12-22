@@ -1,5 +1,5 @@
 import express, { Request, Response, NextFunction } from "express";
-import { config } from "./utils/config";
+import { config } from "../shared/utils/config";
 import { workspaceAnalyzerRouter } from "./routes/analyzer";
 
 const app = express();

@@ -1,7 +1,7 @@
 import { ExecutionAdapter } from "./executionAdapter";
 import { InMemoryAdapter } from "./inMemoryAdapter";
 import { KubernetesAdapter } from "./kubernetesAdapter";
-import { config, ExecutionMode } from "../utils/config";
+import { config, ExecutionMode } from "../../shared/utils/config";
 
 export class ExecutionAdapterFactory {
   static createAdapter(): ExecutionAdapter {

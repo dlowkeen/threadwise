@@ -1,7 +1,7 @@
 import cron from "node-cron";
-import { config, ExecutionMode } from "../utils/config";
-import { ExecutionAdapter } from "../adapters/executionAdapter";
-import { ExecutionAdapterFactory } from "../adapters/executionAdapterFactory";
+import { config } from "../shared/utils/config";
+import { ExecutionAdapter } from "./adapters/executionAdapter";
+import { ExecutionAdapterFactory } from "./adapters/executionAdapterFactory";
 
 interface Workspace {
   id: string;
@@ -123,10 +123,19 @@ class CronOrchestrator {
   }
 }
 
-export const cronOrchestrator = new CronOrchestrator();
+const cronOrchestrator = new CronOrchestrator();
 
-// If this file is run directly, start the cron
-if (require.main === module) {
-  const schedule = process.env.CRON_SCHEDULE || "*/15 * * * *";
-  cronOrchestrator.start(schedule);
-}
+// Start the cron when this file is run directly
+const schedule = process.env.CRON_SCHEDULE || "*/15 * * * *";
+cronOrchestrator.start(schedule);
+
+// Handle process termination
+process.on("SIGINT", () => {
+  console.log("\nShutting down gracefully...");
+  process.exit(0);
+});
+
+process.on("SIGTERM", () => {
+  console.log("\nShutting down gracefully...");
+  process.exit(0);
+});
