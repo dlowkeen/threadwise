@@ -62,3 +62,9 @@ COMMENT ON COLUMN channels.is_active IS 'Whether the channel is actively being m
 
 COMMENT ON COLUMN jira.workspace_id IS 'Foreign key to workspaces table (unique for one-to-one relationship)';
 COMMENT ON COLUMN jira.api_token IS 'Jira API token (should be encrypted)';
+
+ALTER TABLE workspaces ADD COLUMN IF NOT EXISTS run_on_start BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE workspaces ADD COLUMN IF NOT EXISTS cron_schedule TEXT NOT NULL DEFAULT '*/15 * * * *';
+
+db migrations
+knex, flyway, prisma, etc.

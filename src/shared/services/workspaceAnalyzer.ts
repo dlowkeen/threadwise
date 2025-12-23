@@ -41,7 +41,7 @@ export class WorkspaceAnalyzer {
   /**
    * Analyze a single workspace
    */
-  async analyzeWorkspace(workspaceId: string): Promise<AnalysisResult> {
+  async analyzeWorkspace(workspaceId: string, channelId: string): Promise<AnalysisResult> {
     // change this to see if we already have the workspace id and channels then we don't need to
     // call aagain.
 
@@ -115,9 +115,53 @@ export class WorkspaceAnalyzer {
     return results;
   }
 
+  // Database Version of Workspace (Postgres table)
+  // columns n shit
+  interface WorkspaceRow {
+    id: string;
+    slack_team_id: string;
+    thread_threshold: number;
+  }
+  mongoose // Document<WorkspaceRow, Model<WorkspaceRow, any, any, any, any, any>>
+
+  interface Workspace {
+    id: string;
+    teamId: string;
+    channels: string[];
+    settings: {
+      threadThreshold: number;
+    };
+    channelLastTouched: Date;
+  }
+
+  // application code version of what a workspace is. This is where you can massage the data structure to be whatever it to be
+  // interface Workspace {
+  //   id: string;
+  //   teamId: string;
+  //   channels: string[];
+  //   settings: {
+  //     threadThreshold: number;
+  //   };
+  //   channelLastTouched: Date;
+  // }
+
   private async getWorkspace(workspaceId: string): Promise<Workspace> {
     // TODO: Implement database query
     // For now, return the hardcoded workspace
+
+    // 1 fetch data
+    const { rows } = await query<ChannelRow>(`SELECT * FROM channels WHERE workspace_id = $1 AND is_active = true`, [workspaceId]);
+    const workspace = await query<WorkspaceRow>(`SELECT * FROM workspaces WHERE id = $1`, [workspaceId]);
+    
+    // 2 validate data
+    // if channels dont have some value don't include it in the list of channels
+
+    // 3 massage data
+    const result = formatWorkspace(rows, workspace)
+
+    // 4 return data
+    return result;
+
 
     // this would make the api call to the server to grab the workspace id.
     // what is the difference betweeen getallworkspace and getworkspace? Who uses them?
@@ -125,7 +169,7 @@ export class WorkspaceAnalyzer {
     return {
       id: workspaceId,
       teamId: workspaceId,
-      channels: ["C06KQR10T4N"],
+      channels: rows?.maps(channel => channel.id),
       settings: {
         threadThreshold: 2,
       },
