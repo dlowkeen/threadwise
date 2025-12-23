@@ -42,6 +42,9 @@ export class WorkspaceAnalyzer {
    * Analyze a single workspace
    */
   async analyzeWorkspace(workspaceId: string): Promise<AnalysisResult> {
+    // change this to see if we already have the workspace id and channels then we don't need to 
+    // call aagain.
+    
     const workspace = await this.getWorkspace(workspaceId);
     let processedCount = 0;
 
@@ -115,6 +118,10 @@ export class WorkspaceAnalyzer {
   private async getWorkspace(workspaceId: string): Promise<Workspace> {
     // TODO: Implement database query
     // For now, return the hardcoded workspace
+
+    // this would make the api call to the server to grab the workspace id. 
+    // what is the difference betweeen getallworkspace and getworkspace? Who uses them?
+    // we will be using this one. getallWorkspace() is for manually triggering. 
     return {
       id: workspaceId,
       teamId: workspaceId,

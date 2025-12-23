@@ -1,4 +1,5 @@
 import cron from "node-cron";
+import axios from "axios";
 import { config } from "../shared/utils/config";
 import { ExecutionAdapter } from "./adapters/executionAdapter";
 import { ExecutionAdapterFactory } from "./adapters/executionAdapterFactory";
@@ -11,10 +12,17 @@ interface Workspace {
 class CronOrchestrator {
   private executionAdapter: ExecutionAdapter;
   private isRunning: boolean = false;
+  private apiUrl: string;
 
   constructor() {
     // Create the appropriate execution adapter based on config
     this.executionAdapter = ExecutionAdapterFactory.createAdapter();
+    
+    // Set up API URL for fetching workspaces
+    const port = config.server.port;
+    const host = config.server.host;
+    this.apiUrl = process.env.API_URL || `http://${host}:${port}`;
+    
     console.log(
       `CronOrchestrator initialized with ${config.execution.mode} execution mode`
     );
@@ -77,17 +85,35 @@ class CronOrchestrator {
   }
 
   /**
-   * Get all workspaces from database
+   * Get all workspaces from database via API server
    */
   private async getAllWorkspaces(): Promise<Workspace[]> {
-    // TODO: Implement database query
-    // For now, return hardcoded workspace
-    return [
-      {
-        id: "default",
-        channels: ["C06KQR10T4N"],
-      },
-    ];
+    try {
+      const response = await axios.get(`${this.apiUrl}/api/workspaces`, {
+        timeout: 10000, // 10 second timeout
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.data.success && response.data.workspaces) {
+        // Map API response to the Workspace interface expected by cron
+        return response.data.workspaces.map((ws: any) => ({
+          id: ws.id,
+          channels: ws.channels || [],
+        }));
+      }
+
+      console.warn("API returned unsuccessful response or missing workspaces");
+      return [];
+    } catch (error: any) {
+      console.error(
+        `Failed to fetch workspaces from API: ${error.message}`,
+        error.response?.data || ""
+      );
+      // Return empty array on failure to prevent cron from crashing
+      return [];
+    }
   }
 
   /**
