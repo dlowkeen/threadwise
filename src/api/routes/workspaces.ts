@@ -76,4 +76,3 @@ router.get("/", async (req: Request, res: Response) => {
 });
 
 export { router as workspacesRouter };
-

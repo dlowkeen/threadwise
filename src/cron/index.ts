@@ -17,12 +17,12 @@ class CronOrchestrator {
   constructor() {
     // Create the appropriate execution adapter based on config
     this.executionAdapter = ExecutionAdapterFactory.createAdapter();
-    
+
     // Set up API URL for fetching workspaces
     const port = config.server.port;
     const host = config.server.host;
     this.apiUrl = process.env.API_URL || `http://${host}:${port}`;
-    
+
     console.log(
       `CronOrchestrator initialized with ${config.execution.mode} execution mode`
     );

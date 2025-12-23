@@ -3,22 +3,19 @@ import { config } from "./config";
 
 let pool: Pool | null = null;
 
-
 export function getPool(): Pool {
   if (!pool) {
     const dbUrl = config.database.url;
-    
 
     const poolConfig: PoolConfig = {
       connectionString: dbUrl,
       ssl: config.database.ssl ? { rejectUnauthorized: false } : false,
       max: 20,
-      idleTimeoutMillis: 30000, 
-      connectionTimeoutMillis: 2000, 
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 2000,
     };
 
     pool = new Pool(poolConfig);
-
 
     pool.on("error", (err) => {
       console.error("Unexpected error on idle database client", err);
@@ -27,7 +24,6 @@ export function getPool(): Pool {
 
   return pool;
 }
-
 
 export async function query<T = any>(
   text: string,
@@ -42,7 +38,6 @@ export async function query<T = any>(
     throw error;
   }
 }
-
 
 export async function closePool(): Promise<void> {
   if (pool) {
@@ -60,4 +55,3 @@ process.on("SIGTERM", async () => {
   await closePool();
   process.exit(0);
 });
-
