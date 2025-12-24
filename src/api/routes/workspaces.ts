@@ -1,7 +1,9 @@
 import { Router, Request, Response } from "express";
-import { query } from "../../shared/utils/db";
+import { query } from "../../shared/utils/db"; 
+import { WorkspaceAnalyzer } from "@/services/workspaceAnalyzer";
 
 const router = Router();
+const analyzer = new WorkspaceAnalyzer();
 
 interface WorkspaceRow {
   id: string;
@@ -23,6 +25,31 @@ interface WorkspaceResponse {
  * Get all workspaces with their active channels
  * GET /api/workspaces
  */
+
+router.post("/:workspaceId/analyze", async (req: Request, res: Response) => {
+  try {
+    const { workspaceId } = req.params;
+
+    console.log(`Analyzing workspace: ${workspaceId}`);
+    const result = await analyzer.analyzeWorkspace(workspaceId);
+
+    res.json({
+      success: true,
+      result,
+    });
+  } catch (error: any) {
+    console.error(
+      `Error analyzing workspace ${req.params.workspaceId}:`,
+      error
+    );
+    res.status(500).json({
+      success: false,
+      error: error.message || "Internal server error",
+    });
+  }
+});
+
+
 router.get("/", async (req: Request, res: Response) => {
   try {
     // Query to fetch all workspaces with their active channels
