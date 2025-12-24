@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { query } from "../../shared/utils/db"; 
+import { query } from "../../shared/utils/db";
 import { WorkspaceAnalyzer } from "@/services/workspaceAnalyzer";
 
 const router = Router();
@@ -48,7 +48,6 @@ router.post("/:workspaceId/analyze", async (req: Request, res: Response) => {
     });
   }
 });
-
 
 router.get("/", async (req: Request, res: Response) => {
   try {
