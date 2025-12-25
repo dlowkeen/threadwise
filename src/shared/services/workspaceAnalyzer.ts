@@ -19,6 +19,7 @@ import { MESSAGE_STATUSES } from "../constants/statuses";
 import { buildResolvedSummary } from "../helpers/buildResolvedSummary";
 import { taskExtractionPrompt } from "../prompts/filterPrompt";
 import { jiraClient, JiraClientManager } from "../clients/jira";
+import axios from "axios";
 
 interface Workspace {
   id: string;
@@ -35,6 +36,8 @@ interface AnalysisResult {
   timestamp: Date;
 }
 
+const apiUrl = process.env.API_URL || "http://localhost:3000";
+
 export class WorkspaceAnalyzer {
   private userNameCache = new Map<string, string>();
 
@@ -42,8 +45,9 @@ export class WorkspaceAnalyzer {
    * Analyze a single workspace
    */
   async analyzeWorkspace(workspaceId: string): Promise<AnalysisResult> {
-    // change this to see if we already have the workspace id and channels then we don't need to
-    // call aagain.
+    
+    // this would make a api call with the workspace to get all the channel ids and we will massage them.
+
 
     const workspace = await this.getWorkspace(workspaceId);
     let processedCount = 0;
@@ -115,19 +119,58 @@ export class WorkspaceAnalyzer {
     return results;
   }
 
-  private async getWorkspace(workspaceId: string): Promise<Workspace> {
-    // TODO: Implement database query
-    // For now, return the hardcoded workspace
+  /**
+   * Fetch channel IDs for a workspace from the API
+   */
+  private async fetchChannelIds(workspaceId: string): Promise<string[]> {
+    try {
+      const response = await axios.get(`${apiUrl}/api/workspaces/${workspaceId}/channelIds`, {
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+      if (response.data && response.data.success) {
+        return response.data.channelIds || [];
+      } else {
+        throw new Error(`Failed to fetch channels for workspace ${workspaceId}`);
+      }
+    } catch (err: any) {
+      throw new Error(`Failed to fetch channels for workspace ${workspaceId}: ${err.message || err}`);
+    }
+  }
 
-    // this would make the api call to the server to grab the workspace id.
-    // what is the difference betweeen getallworkspace and getworkspace? Who uses them?
-    // we will be using this one. getallWorkspace() is for manually triggering.
+  /**
+   * Fetch thread threshold for a workspace from the API
+   */
+  private async fetchThreadThreshold(workspaceId: string): Promise<number> {
+    try {
+      const response = await axios.get(`${apiUrl}/api/workspaces/${workspaceId}/threshold`, {
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+      if (response.data && response.data.success) {
+        return response.data.threshold || 2;
+      } else {
+        throw new Error(`Failed to fetch threshold for workspace ${workspaceId}`);
+      }
+    } catch (err: any) {
+      throw new Error(`Failed to fetch threshold for workspace ${workspaceId}: ${err.message || err}`);
+    }
+  }
+
+  private async getWorkspace(workspaceId: string): Promise<Workspace> {
+    // Fetch channel IDs and threshold from API
+    const channelIds = await this.fetchChannelIds(workspaceId);
+    const threshold = await this.fetchThreadThreshold(workspaceId);
+
+
     return {
       id: workspaceId,
       teamId: workspaceId,
-      channels: ["C06KQR10T4N"],
+      channels: channelIds,
       settings: {
-        threadThreshold: 2,
+        threadThreshold: threshold,
       },
     };
   }

@@ -22,10 +22,6 @@ interface WorkspaceResponse {
   };
 }
 
-/**
- * Get all workspaces with their active channels
- * GET /api/workspaces
- */
 
 router.post("/:workspaceId/analyze", async (req: Request, res: Response) => {
   try {
@@ -50,6 +46,19 @@ router.post("/:workspaceId/analyze", async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * Get all workspace IDs
+ * 
+ * Returns an array of all workspace IDs in the system.
+ * 
+ * GET /api/workspaces/ids
+ * 
+ * Response format:
+ * {
+ *   success: boolean,
+ *   workspaces: string[]
+ * }
+ */
 router.get("/ids", async (req: Request, res: Response) => {
   try {
     const workspaceIds = await prisma.workspace.findMany({
@@ -73,6 +82,21 @@ router.get("/ids", async (req: Request, res: Response) => {
   }
 });
 
+
+/*
+ * GET /api/workspaces/:workspaceId/channelIds
+ *
+ * Retrieves an array of Slack channel IDs associated with the specified workspace.
+ *
+ * Path Parameters:
+ *   - workspaceId (string): The ID of the workspace for which channel Slack IDs will be fetched.
+ *
+ * Response format:
+ * {
+ *   success: boolean,
+ *   channelIds: string[]
+ * }
+ */
 router.get("/:workspaceId/channelIds", async (req: Request, res: Response) => {
   const { workspaceId } = req.params;
 
@@ -93,7 +117,7 @@ router.get("/:workspaceId/channelIds", async (req: Request, res: Response) => {
       },
     });
 
-    const channelIds = channels.map((chan) => chan.slackChannelId);
+    const channelIds = channels.map(channel => channel.slackChannelId);
 
     res.json({
       success: true,
@@ -107,5 +131,41 @@ router.get("/:workspaceId/channelIds", async (req: Request, res: Response) => {
     });
   }
 });
+
+router.get("/:workspaceId/threshold", async (req: Request, res: Response)=> {
+  const { workspaceId } = req.params;
+  
+  try {
+    if (!workspaceId) {
+      return res.status(400).json({
+        success: false,
+        error: "Missing workspaceId parameter"
+      });
+    }
+
+    const threshold = await prisma.workspace.findMany({
+      where: {
+        id: workspaceId
+      },
+      select: {
+        threadThreshold: true
+      }
+    })
+
+    res.json({
+      success: true, 
+      threshold
+    });
+
+  } catch (error: any) {
+      console.error("Error fetching thread threshold for workspace:", error);
+      res.status(500).json({
+        success: false,
+        error: error.message || "Internal server error"
+      });
+    }
+})
+
+
 
 export { router as workspacesRouter };
