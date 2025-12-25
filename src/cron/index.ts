@@ -99,16 +99,15 @@ class CronOrchestrator {
       if (response.data.success && response.data.workspaces) {
         return response.data.workspaces;
       }
-      throw new Error("API returned unsuccessful response or missing workspaces");
-
+      throw new Error(
+        "API returned unsuccessful response or missing workspaces"
+      );
     } catch (error: any) {
       console.error(
         `Failed to fetch workspaces from API: ${error.message}`,
         error.response?.data || ""
       );
-      throw new Error(
-        `Failed to fetch workspaces from API: ${error.message}`
-      );
+      throw new Error(`Failed to fetch workspaces from API: ${error.message}`);
     }
   }
 

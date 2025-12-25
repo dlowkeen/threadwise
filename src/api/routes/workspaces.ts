@@ -50,63 +50,60 @@ router.post("/:workspaceId/analyze", async (req: Request, res: Response) => {
   }
 });
 
-
 router.get("/ids", async (req: Request, res: Response) => {
   try {
     const workspaceIds = await prisma.workspace.findMany({
       select: {
-        id: true
-      }
+        id: true,
+      },
     });
 
-    const ids: string[] = workspaceIds.map(ws => ws.id);
+    const ids: string[] = workspaceIds.map((ws) => ws.id);
 
     res.json({
-      success: true, 
-      workspaces: ids
+      success: true,
+      workspaces: ids,
     });
-
   } catch (error: any) {
     console.error("Error fetching workspace IDs:", error);
     res.status(500).json({
       success: false,
-      error: error.message || "Internal server error"
+      error: error.message || "Internal server error",
     });
   }
 });
 
-
 router.get("/:workspaceId/channelIds", async (req: Request, res: Response) => {
   const { workspaceId } = req.params;
-  
+
   if (!workspaceId) {
     return res.status(400).json({
       success: false,
-      error: "Missing workspaceId parameter"
+      error: "Missing workspaceId parameter",
     });
   }
 
   try {
     const channels = await prisma.channel.findMany({
       where: {
-        workspaceId: workspaceId
+        workspaceId: workspaceId,
       },
       select: {
-        slackChannelId: true 
-      }
+        slackChannelId: true,
+      },
     });
 
-    const channelIds = channels.map(chan => chan.slackChannelId);
+    const channelIds = channels.map((chan) => chan.slackChannelId);
 
     res.json({
       success: true,
-      channelIds
+      channelIds,
     });
   } catch (error: any) {
     console.error("Error fetching channel IDs for workspace:", error);
     res.status(500).json({
       success: false,
-      error: error.message || "Internal server error"
+      error: error.message || "Internal server error",
     });
   }
 });

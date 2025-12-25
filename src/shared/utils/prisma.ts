@@ -1,7 +1,6 @@
 import { PrismaClient } from "@prisma/client";
-import { Pool } from "pg"; 
+import { Pool } from "pg";
 import { config } from "./config";
-
 
 let PrismaPg;
 try {
@@ -16,14 +15,14 @@ const globalForPrisma = globalThis as typeof globalThis & {
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: config.database.ssl ? { rejectUnauthorized: false} : false,
+  ssl: config.database.ssl ? { rejectUnauthorized: false } : false,
   max: 20,
-  idleTimeoutMillis: 30000, 
+  idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
 });
 
 pool.on("error", (err) => {
-    console.error("Unexpected error on idle database client", err);
+  console.error("Unexpected error on idle database client", err);
 });
 
 const adapter = new PrismaPg(pool);
@@ -32,9 +31,10 @@ export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
     adapter: adapter,
-    log: process.env.NODE_ENV === "development" 
-      ? ["query", "error", "warn"] 
-      : ["error"],
+    log:
+      process.env.NODE_ENV === "development"
+        ? ["query", "error", "warn"]
+        : ["error"],
   });
 
 if (process.env.NODE_ENV !== "production") {
