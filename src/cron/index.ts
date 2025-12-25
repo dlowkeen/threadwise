@@ -89,7 +89,7 @@ class CronOrchestrator {
    */
   private async getAllWorkspaces(): Promise<Workspace[]> {
     try {
-      const response = await axios.get(`${this.apiUrl}/api/workspaces`, {
+      const response = await axios.get(`${this.apiUrl}/api/workspaces/ids`, {
         timeout: 10000, // 10 second timeout
         headers: {
           "Content-Type": "application/json",
@@ -97,22 +97,18 @@ class CronOrchestrator {
       });
 
       if (response.data.success && response.data.workspaces) {
-        // Map API response to the Workspace interface expected by cron
-        return response.data.workspaces.map((ws: any) => ({
-          id: ws.id,
-          channels: ws.channels || [],
-        }));
+        return response.data.workspaces;
       }
+      throw new Error("API returned unsuccessful response or missing workspaces");
 
-      console.warn("API returned unsuccessful response or missing workspaces");
-      return [];
     } catch (error: any) {
       console.error(
         `Failed to fetch workspaces from API: ${error.message}`,
         error.response?.data || ""
       );
-      // Return empty array on failure to prevent cron from crashing
-      return [];
+      throw new Error(
+        `Failed to fetch workspaces from API: ${error.message}`
+      );
     }
   }
 

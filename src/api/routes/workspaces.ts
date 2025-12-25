@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import { query } from "../../shared/utils/db";
 import { WorkspaceAnalyzer } from "@/services/workspaceAnalyzer";
+import { prisma } from "@/utils/prisma";
 
 const router = Router();
 const analyzer = new WorkspaceAnalyzer();
@@ -49,54 +50,67 @@ router.post("/:workspaceId/analyze", async (req: Request, res: Response) => {
   }
 });
 
+<<<<<<< HEAD
 router.get("/", async (req: Request, res: Response) => {
+=======
+
+router.get("/ids", async (req: Request, res: Response) => {
+>>>>>>> b41d7b4 (*config prisma and schema)
   try {
-    // Query to fetch all workspaces with their active channels
-    const sql = `
-      SELECT 
-        w.id,
-        w.slack_team_id,
-        w.thread_threshold,
-        c.slack_channel_id
-      FROM workspaces w
-      LEFT JOIN channels c ON w.id = c.workspace_id AND c.is_active = true
-      ORDER BY w.id, c.slack_channel_id
-    `;
-
-    const rows = await query<WorkspaceRow>(sql);
-
-    // Transform flat result set into nested workspace objects
-    const workspaceMap = new Map<string, WorkspaceResponse>();
-
-    for (const row of rows) {
-      if (!workspaceMap.has(row.id)) {
-        workspaceMap.set(row.id, {
-          id: row.id,
-          teamId: row.slack_team_id,
-          channels: [],
-          settings: {
-            threadThreshold: row.thread_threshold,
-          },
-        });
+    const workspaceIds = await prisma.workspace.findMany({
+      select: {
+        id: true
       }
+    });
 
-      const workspace = workspaceMap.get(row.id)!;
-      if (row.slack_channel_id) {
-        workspace.channels.push(row.slack_channel_id);
+    const ids = workspaceIds.map(ws => ws.id);
+
+    res.json({
+      success: true, 
+      workspaces: ids
+    });
+
+  } catch (error: any) {
+    console.error("Error fetching workspace IDs:", error);
+    res.status(500).json({
+      success: false,
+      error: error.message || "Internal server error"
+    });
+  }
+});
+
+
+router.get("/:workspaceId/channelIds", async (req: Request, res: Response) => {
+  const { workspaceId } = req.params;
+  
+  if (!workspaceId) {
+    return res.status(400).json({
+      success: false,
+      error: "Missing workspaceId parameter"
+    });
+  }
+
+  try {
+    const channels = await prisma.channel.findMany({
+      where: {
+        workspaceId: workspaceId
+      },
+      select: {
+        slackChannelId: true 
       }
-    }
+    });
 
-    const workspaces = Array.from(workspaceMap.values());
+    const channelIds = channels.map(chan => chan.slackChannelId);
 
     res.json({
       success: true,
-      workspaces,
+      channelIds
     });
   } catch (error: any) {
-    console.error("Error fetching workspaces:", error);
+    console.error("Error fetching channel IDs for workspace:", error);
     res.status(500).json({
       success: false,
-      error: error.message || "Internal server error",
+      error: error.message || "Internal server error"
     });
   }
 });
