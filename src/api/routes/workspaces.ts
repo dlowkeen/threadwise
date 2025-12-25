@@ -50,12 +50,8 @@ router.post("/:workspaceId/analyze", async (req: Request, res: Response) => {
   }
 });
 
-<<<<<<< HEAD
-router.get("/", async (req: Request, res: Response) => {
-=======
 
 router.get("/ids", async (req: Request, res: Response) => {
->>>>>>> b41d7b4 (*config prisma and schema)
   try {
     const workspaceIds = await prisma.workspace.findMany({
       select: {
