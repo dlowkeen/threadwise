@@ -45,9 +45,7 @@ export class WorkspaceAnalyzer {
    * Analyze a single workspace
    */
   async analyzeWorkspace(workspaceId: string): Promise<AnalysisResult> {
-    
     // this would make a api call with the workspace to get all the channel ids and we will massage them.
-
 
     const workspace = await this.getWorkspace(workspaceId);
     let processedCount = 0;
@@ -124,18 +122,27 @@ export class WorkspaceAnalyzer {
    */
   private async fetchChannelIds(workspaceId: string): Promise<string[]> {
     try {
-      const response = await axios.get(`${apiUrl}/api/workspaces/${workspaceId}/channelIds`, {
-        headers: {
-          "Content-Type": "application/json"
+      const response = await axios.get(
+        `${apiUrl}/api/workspaces/${workspaceId}/channelIds`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-      });
+      );
       if (response.data && response.data.success) {
         return response.data.channelIds || [];
       } else {
-        throw new Error(`Failed to fetch channels for workspace ${workspaceId}`);
+        throw new Error(
+          `Failed to fetch channels for workspace ${workspaceId}`
+        );
       }
     } catch (err: any) {
-      throw new Error(`Failed to fetch channels for workspace ${workspaceId}: ${err.message || err}`);
+      throw new Error(
+        `Failed to fetch channels for workspace ${workspaceId}: ${
+          err.message || err
+        }`
+      );
     }
   }
 
@@ -144,18 +151,27 @@ export class WorkspaceAnalyzer {
    */
   private async fetchThreadThreshold(workspaceId: string): Promise<number> {
     try {
-      const response = await axios.get(`${apiUrl}/api/workspaces/${workspaceId}/threshold`, {
-        headers: {
-          "Content-Type": "application/json"
+      const response = await axios.get(
+        `${apiUrl}/api/workspaces/${workspaceId}/threshold`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-      });
+      );
       if (response.data && response.data.success) {
         return response.data.threshold || 2;
       } else {
-        throw new Error(`Failed to fetch threshold for workspace ${workspaceId}`);
+        throw new Error(
+          `Failed to fetch threshold for workspace ${workspaceId}`
+        );
       }
     } catch (err: any) {
-      throw new Error(`Failed to fetch threshold for workspace ${workspaceId}: ${err.message || err}`);
+      throw new Error(
+        `Failed to fetch threshold for workspace ${workspaceId}: ${
+          err.message || err
+        }`
+      );
     }
   }
 
@@ -163,7 +179,6 @@ export class WorkspaceAnalyzer {
     // Fetch channel IDs and threshold from API
     const channelIds = await this.fetchChannelIds(workspaceId);
     const threshold = await this.fetchThreadThreshold(workspaceId);
-
 
     return {
       id: workspaceId,

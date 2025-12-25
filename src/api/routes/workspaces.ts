@@ -22,7 +22,6 @@ interface WorkspaceResponse {
   };
 }
 
-
 router.post("/:workspaceId/analyze", async (req: Request, res: Response) => {
   try {
     const { workspaceId } = req.params;
@@ -48,11 +47,11 @@ router.post("/:workspaceId/analyze", async (req: Request, res: Response) => {
 
 /**
  * Get all workspace IDs
- * 
+ *
  * Returns an array of all workspace IDs in the system.
- * 
+ *
  * GET /api/workspaces/ids
- * 
+ *
  * Response format:
  * {
  *   success: boolean,
@@ -81,7 +80,6 @@ router.get("/ids", async (req: Request, res: Response) => {
     });
   }
 });
-
 
 /*
  * GET /api/workspaces/:workspaceId/channelIds
@@ -117,7 +115,7 @@ router.get("/:workspaceId/channelIds", async (req: Request, res: Response) => {
       },
     });
 
-    const channelIds = channels.map(channel => channel.slackChannelId);
+    const channelIds = channels.map((channel) => channel.slackChannelId);
 
     res.json({
       success: true,
@@ -132,40 +130,37 @@ router.get("/:workspaceId/channelIds", async (req: Request, res: Response) => {
   }
 });
 
-router.get("/:workspaceId/threshold", async (req: Request, res: Response)=> {
+router.get("/:workspaceId/threshold", async (req: Request, res: Response) => {
   const { workspaceId } = req.params;
-  
+
   try {
     if (!workspaceId) {
       return res.status(400).json({
         success: false,
-        error: "Missing workspaceId parameter"
+        error: "Missing workspaceId parameter",
       });
     }
 
     const threshold = await prisma.workspace.findMany({
       where: {
-        id: workspaceId
+        id: workspaceId,
       },
       select: {
-        threadThreshold: true
-      }
-    })
-
-    res.json({
-      success: true, 
-      threshold
+        threadThreshold: true,
+      },
     });
 
+    res.json({
+      success: true,
+      threshold,
+    });
   } catch (error: any) {
-      console.error("Error fetching thread threshold for workspace:", error);
-      res.status(500).json({
-        success: false,
-        error: error.message || "Internal server error"
-      });
-    }
-})
-
-
+    console.error("Error fetching thread threshold for workspace:", error);
+    res.status(500).json({
+      success: false,
+      error: error.message || "Internal server error",
+    });
+  }
+});
 
 export { router as workspacesRouter };
