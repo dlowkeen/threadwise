@@ -59,7 +59,7 @@ router.get("/ids", async (req: Request, res: Response) => {
       }
     });
 
-    const ids = workspaceIds.map(ws => ws.id);
+    const ids: string[] = workspaceIds.map(ws => ws.id);
 
     res.json({
       success: true, 
