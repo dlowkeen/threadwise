@@ -21,8 +21,11 @@ import { taskExtractionPrompt } from "../prompts/filterPrompt";
 import { jiraClient, JiraClientManager } from "../clients/jira";
 import axios from "axios";
 import { Workspace } from "@/types/workspace.types";
-import { validateChannels, validateThreadThreshold, validateWorkspaceId } from "@/helpers/validateWorkspaceData";
-
+import {
+  validateChannels,
+  validateThreadThreshold,
+  validateWorkspaceId,
+} from "@/helpers/validateWorkspaceData";
 
 interface AnalysisResult {
   workspaceId: string;
@@ -170,15 +173,15 @@ export class WorkspaceAnalyzer {
   }
 
   private async getWorkspace(workspaceId: string): Promise<Workspace> {
-    validateWorkspaceId(workspaceId)
-    
+    validateWorkspaceId(workspaceId);
+
     const channelIds: string[] = await this.fetchChannelIds(workspaceId);
     const threshold: number = await this.fetchThreadThreshold(workspaceId);
 
     const validatedChannelIds = validateChannels(channelIds);
     const validatedThreadThreshold = validateThreadThreshold(threshold);
 
-    //currently All channels in a workspace use the same threadThreshold value. 
+    //currently All channels in a workspace use the same threadThreshold value.
 
     return {
       id: workspaceId,
