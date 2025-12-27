@@ -1,5 +1,4 @@
 import { Router, Request, Response } from "express";
-import { query } from "../../shared/utils/db";
 import { WorkspaceAnalyzer } from "@/services/workspaceAnalyzer";
 import { prisma } from "@/utils/prisma";
 
@@ -141,7 +140,7 @@ router.get("/:workspaceId/threshold", async (req: Request, res: Response) => {
       });
     }
 
-    const threshold = await prisma.workspace.findMany({
+    const threshold = await prisma.workspace.findUnique({
       where: {
         id: workspaceId,
       },
@@ -152,7 +151,7 @@ router.get("/:workspaceId/threshold", async (req: Request, res: Response) => {
 
     res.json({
       success: true,
-      threshold,
+      threshold: threshold,
     });
   } catch (error: any) {
     console.error("Error fetching thread threshold for workspace:", error);
