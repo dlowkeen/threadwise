@@ -20,15 +20,9 @@ import { buildResolvedSummary } from "../helpers/buildResolvedSummary";
 import { taskExtractionPrompt } from "../prompts/filterPrompt";
 import { jiraClient, JiraClientManager } from "../clients/jira";
 import axios from "axios";
+import { Workspace } from "@/types/workspace.types";
+import { validateChannels, validateThreadThreshold, validateWorkspaceId } from "@/helpers/validateWorkspaceData";
 
-interface Workspace {
-  id: string;
-  teamId: string;
-  channels: string[];
-  settings: {
-    threadThreshold: number;
-  };
-}
 
 interface AnalysisResult {
   workspaceId: string;
@@ -176,16 +170,22 @@ export class WorkspaceAnalyzer {
   }
 
   private async getWorkspace(workspaceId: string): Promise<Workspace> {
-    // Fetch channel IDs and threshold from API
-    const channelIds = await this.fetchChannelIds(workspaceId);
-    const threshold = await this.fetchThreadThreshold(workspaceId);
+    validateWorkspaceId(workspaceId)
+    
+    const channelIds: string[] = await this.fetchChannelIds(workspaceId);
+    const threshold: number = await this.fetchThreadThreshold(workspaceId);
+
+    const validatedChannelIds = validateChannels(channelIds);
+    const validatedThreadThreshold = validateThreadThreshold(threshold);
+
+    //currently All channels in a workspace use the same threadThreshold value. 
 
     return {
       id: workspaceId,
       teamId: workspaceId,
-      channels: channelIds,
+      channels: validatedChannelIds,
       settings: {
-        threadThreshold: threshold,
+        threadThreshold: validatedThreadThreshold,
       },
     };
   }
