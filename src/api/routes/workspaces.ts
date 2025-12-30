@@ -94,67 +94,48 @@ router.get("/ids", async (req: Request, res: Response) => {
  *   channelIds: string[]
  * }
  */
-router.get("/:workspaceId/channelIds", async (req: Request, res: Response) => {
-  const { workspaceId } = req.params;
 
-  if (!workspaceId) {
+router.get("/:workspaceId", async (req: Request, res: Response) => {
+  const { workspaceId } = req.params; 
+  
+  if (!workspaceId){
     return res.status(400).json({
       success: false,
-      error: "Missing workspaceId parameter",
+      error: "Missing workspaceId parameter", 
     });
   }
 
   try {
-    const channels = await prisma.channel.findMany({
-      where: {
-        workspaceId: workspaceId,
-      },
-      select: {
-        slackChannelId: true,
-      },
+    const workspace = await prisma.workspace.findUnique({
+      where: {id: workspaceId}, 
+      include: {
+        channels: {
+          where: {isActive: true},
+          select: { slackChannelId: true}
+        }
+      }
     });
 
-    const channelIds = channels.map((channel) => channel.slackChannelId);
-
-    res.json({
-      success: true,
-      channelIds,
-    });
-  } catch (error: any) {
-    console.error("Error fetching channel IDs for workspace:", error);
-    res.status(500).json({
-      success: false,
-      error: error.message || "Internal server error",
-    });
-  }
-});
-
-router.get("/:workspaceId/threshold", async (req: Request, res: Response) => {
-  const { workspaceId } = req.params;
-
-  try {
-    if (!workspaceId) {
-      return res.status(400).json({
-        success: false,
-        error: "Missing workspaceId parameter",
+    if (!workspace){
+      return res.status(404).json({
+        success: false, 
+        error: "Workspace not found"
       });
     }
 
-    const threshold = await prisma.workspace.findUnique({
-      where: {
-        id: workspaceId,
-      },
-      select: {
-        threadThreshold: true,
-      },
-    });
-
     res.json({
       success: true,
-      threshold: threshold,
+      workspace: {
+        id: workspace.id, 
+        teamId: workspace.slackTeamId,
+        channels: workspace.channels.map(c => c.slackChannelId),
+        settings:{
+          threadsThreshold: workspace.threadThreshold
+        }
+      }
     });
-  } catch (error: any) {
-    console.error("Error fetching thread threshold for workspace:", error);
+
+  } catch (error: any){
     res.status(500).json({
       success: false,
       error: error.message || "Internal server error",

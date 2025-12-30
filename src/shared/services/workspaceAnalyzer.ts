@@ -22,9 +22,7 @@ import { jiraClient, JiraClientManager } from "../clients/jira";
 import axios from "axios";
 import { Workspace } from "@/types/workspace.types";
 import {
-  validateChannels,
   validateThreadThreshold,
-  validateWorkspaceId,
 } from "@/helpers/validateWorkspaceData";
 
 interface AnalysisResult {
@@ -114,83 +112,44 @@ export class WorkspaceAnalyzer {
     return results;
   }
 
-  /**
-   * Fetch channel IDs for a workspace from the API
-   */
-  private async fetchChannelIds(workspaceId: string): Promise<string[]> {
-    try {
-      const response = await axios.get(
-        `${apiUrl}/api/workspaces/${workspaceId}/channelIds`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      if (response.data && response.data.success) {
-        return response.data.channelIds || [];
-      } else {
-        throw new Error(
-          `Failed to fetch channels for workspace ${workspaceId}`
-        );
-      }
-    } catch (err: any) {
-      throw new Error(
-        `Failed to fetch channels for workspace ${workspaceId}: ${
-          err.message || err
-        }`
-      );
-    }
-  }
 
-  /**
-   * Fetch thread threshold for a workspace from the API
-   */
-  private async fetchThreadThreshold(workspaceId: string): Promise<number> {
-    try {
-      const response = await axios.get(
-        `${apiUrl}/api/workspaces/${workspaceId}/threshold`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      if (response.data && response.data.success) {
-        return response.data.threshold || 2;
-      } else {
-        throw new Error(
-          `Failed to fetch threshold for workspace ${workspaceId}`
-        );
-      }
-    } catch (err: any) {
-      throw new Error(
-        `Failed to fetch threshold for workspace ${workspaceId}: ${
-          err.message || err
-        }`
-      );
-    }
-  }
 
   private async getWorkspace(workspaceId: string): Promise<Workspace> {
-    validateWorkspaceId(workspaceId);
+    if (!workspaceId){
+      throw new Error("WorkspaceId cannot be null");
+    }
 
-    const channelIds: string[] = await this.fetchChannelIds(workspaceId);
-    const threshold: number = await this.fetchThreadThreshold(workspaceId);
+    try {
+      const apiUrl = process.env.API_URL || `http://${config.server.host}:${config.server.port}`;
 
-    const validatedChannelIds = validateChannels(channelIds);
-    const validatedThreadThreshold = validateThreadThreshold(threshold);
+      const response = await axios.get(`${apiUrl}/api/workspaces/${workspaceId}`,
+        {
+          timeout: 10000,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    
+      if (!response.data.success || !response.data.workspace){
+        throw new Error(response.data.error || "Failed to fetch workspace");
+      }
+      
+     const workspaceData: Workspace = response.data.workspace; 
+     const validatedThreadThreshold = validateThreadThreshold(workspaceData.settings.threadThreshold);
+      return {
+        ...workspaceData,
+        settings: {
+          threadThreshold: validatedThreadThreshold,
+        },
+      };
 
-    //currently All channels in a workspace use the same threadThreshold value.
 
-    return {
-      id: workspaceId,
-      teamId: workspaceId,
-      channels: validatedChannelIds,
-      settings: {
-        threadThreshold: validatedThreadThreshold,
-      },
-    };
+    } catch (error: any){
+      console.error(`Error fetching workspace ${workspaceId}:`, error);
+      throw error;
+
+    }
   }
 
   private async getAllWorkspaces(): Promise<Workspace[]> {

@@ -47,7 +47,7 @@ class CronOrchestrator {
       console.log(`Execution mode: ${config.execution.mode}`);
 
       // Get all workspaces from database
-      const workspaces = await this.getAllWorkspaces();
+      const workspaces = await this.getAllWorkspacesIds();
       console.log(`Found ${workspaces.length} workspaces to analyze`);
 
       // Execute analysis using the configured adapter
@@ -87,7 +87,7 @@ class CronOrchestrator {
   /**
    * Get all workspaces from database via API server
    */
-  private async getAllWorkspaces(): Promise<Workspace[]> {
+  private async getAllWorkspacesIds(): Promise<Workspace[]> {
     try {
       const response = await axios.get(`${this.apiUrl}/api/workspaces/ids`, {
         timeout: 10000, // 10 second timeout
