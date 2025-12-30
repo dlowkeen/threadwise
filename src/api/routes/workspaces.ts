@@ -96,46 +96,45 @@ router.get("/ids", async (req: Request, res: Response) => {
  */
 
 router.get("/:workspaceId", async (req: Request, res: Response) => {
-  const { workspaceId } = req.params; 
-  
-  if (!workspaceId){
+  const { workspaceId } = req.params;
+
+  if (!workspaceId) {
     return res.status(400).json({
       success: false,
-      error: "Missing workspaceId parameter", 
+      error: "Missing workspaceId parameter",
     });
   }
 
   try {
     const workspace = await prisma.workspace.findUnique({
-      where: {id: workspaceId}, 
+      where: { id: workspaceId },
       include: {
         channels: {
-          where: {isActive: true},
-          select: { slackChannelId: true}
-        }
-      }
+          where: { isActive: true },
+          select: { slackChannelId: true },
+        },
+      },
     });
 
-    if (!workspace){
+    if (!workspace) {
       return res.status(404).json({
-        success: false, 
-        error: "Workspace not found"
+        success: false,
+        error: "Workspace not found",
       });
     }
 
     res.json({
       success: true,
       workspace: {
-        id: workspace.id, 
+        id: workspace.id,
         teamId: workspace.slackTeamId,
-        channels: workspace.channels.map(c => c.slackChannelId),
-        settings:{
-          threadsThreshold: workspace.threadThreshold
-        }
-      }
+        channels: workspace.channels.map((c) => c.slackChannelId),
+        settings: {
+          threadsThreshold: workspace.threadThreshold,
+        },
+      },
     });
-
-  } catch (error: any){
+  } catch (error: any) {
     res.status(500).json({
       success: false,
       error: error.message || "Internal server error",

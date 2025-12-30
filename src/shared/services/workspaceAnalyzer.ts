@@ -21,9 +21,7 @@ import { taskExtractionPrompt } from "../prompts/filterPrompt";
 import { jiraClient, JiraClientManager } from "../clients/jira";
 import axios from "axios";
 import { Workspace } from "@/types/workspace.types";
-import {
-  validateThreadThreshold,
-} from "@/helpers/validateWorkspaceData";
+import { validateThreadThreshold } from "@/helpers/validateWorkspaceData";
 
 interface AnalysisResult {
   workspaceId: string;
@@ -112,17 +110,18 @@ export class WorkspaceAnalyzer {
     return results;
   }
 
-
-
   private async getWorkspace(workspaceId: string): Promise<Workspace> {
-    if (!workspaceId){
+    if (!workspaceId) {
       throw new Error("WorkspaceId cannot be null");
     }
 
     try {
-      const apiUrl = process.env.API_URL || `http://${config.server.host}:${config.server.port}`;
+      const apiUrl =
+        process.env.API_URL ||
+        `http://${config.server.host}:${config.server.port}`;
 
-      const response = await axios.get(`${apiUrl}/api/workspaces/${workspaceId}`,
+      const response = await axios.get(
+        `${apiUrl}/api/workspaces/${workspaceId}`,
         {
           timeout: 10000,
           headers: {
@@ -130,25 +129,24 @@ export class WorkspaceAnalyzer {
           },
         }
       );
-    
-      if (!response.data.success || !response.data.workspace){
+
+      if (!response.data.success || !response.data.workspace) {
         throw new Error(response.data.error || "Failed to fetch workspace");
       }
-      
-     const workspaceData: Workspace = response.data.workspace; 
-     const validatedThreadThreshold = validateThreadThreshold(workspaceData.settings.threadThreshold);
+
+      const workspaceData: Workspace = response.data.workspace;
+      const validatedThreadThreshold = validateThreadThreshold(
+        workspaceData.settings.threadThreshold
+      );
       return {
         ...workspaceData,
         settings: {
           threadThreshold: validatedThreadThreshold,
         },
       };
-
-
-    } catch (error: any){
+    } catch (error: any) {
       console.error(`Error fetching workspace ${workspaceId}:`, error);
       throw error;
-
     }
   }
 
