@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction } from "express";
 import { config } from "../shared/utils/config";
-import { workspaceAnalyzerRouter } from "./routes/analyzer";
+import { workspacesRouter } from "./routes/workspaces";
 
 const app = express();
 
@@ -23,8 +23,7 @@ app.get("/health", (req: Request, res: Response) => {
   });
 });
 
-// API routes
-app.use("/api/workspaces", workspaceAnalyzerRouter);
+app.use("/api/workspaces", workspacesRouter);
 
 // 404 handler
 app.use((req: Request, res: Response) => {

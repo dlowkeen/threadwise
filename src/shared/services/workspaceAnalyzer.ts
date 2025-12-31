@@ -19,21 +19,17 @@ import { MESSAGE_STATUSES } from "../constants/statuses";
 import { buildResolvedSummary } from "../helpers/buildResolvedSummary";
 import { taskExtractionPrompt } from "../prompts/filterPrompt";
 import { jiraClient, JiraClientManager } from "../clients/jira";
-
-interface Workspace {
-  id: string;
-  teamId: string;
-  channels: string[];
-  settings: {
-    threadThreshold: number;
-  };
-}
+import axios from "axios";
+import { Workspace } from "@/types/workspace.types";
+import { validateThreadThreshold } from "@/helpers/validateWorkspaceData";
 
 interface AnalysisResult {
   workspaceId: string;
   processedThreads: number;
   timestamp: Date;
 }
+
+const apiUrl = process.env.API_URL || "http://localhost:3000";
 
 export class WorkspaceAnalyzer {
   private userNameCache = new Map<string, string>();
@@ -42,6 +38,8 @@ export class WorkspaceAnalyzer {
    * Analyze a single workspace
    */
   async analyzeWorkspace(workspaceId: string): Promise<AnalysisResult> {
+    // this would make a api call with the workspace to get all the channel ids and we will massage them.
+
     const workspace = await this.getWorkspace(workspaceId);
     let processedCount = 0;
 
@@ -113,16 +111,43 @@ export class WorkspaceAnalyzer {
   }
 
   private async getWorkspace(workspaceId: string): Promise<Workspace> {
-    // TODO: Implement database query
-    // For now, return the hardcoded workspace
-    return {
-      id: workspaceId,
-      teamId: workspaceId,
-      channels: ["C06KQR10T4N"],
-      settings: {
-        threadThreshold: 2,
-      },
-    };
+    if (!workspaceId) {
+      throw new Error("WorkspaceId cannot be null");
+    }
+
+    try {
+      const apiUrl =
+        process.env.API_URL ||
+        `http://${config.server.host}:${config.server.port}`;
+
+      const response = await axios.get(
+        `${apiUrl}/api/workspaces/${workspaceId}`,
+        {
+          timeout: 10000,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.data.success || !response.data.workspace) {
+        throw new Error(response.data.error || "Failed to fetch workspace");
+      }
+
+      const workspaceData: Workspace = response.data.workspace;
+      const validatedThreadThreshold = validateThreadThreshold(
+        workspaceData.settings.threadThreshold
+      );
+      return {
+        ...workspaceData,
+        settings: {
+          threadThreshold: validatedThreadThreshold,
+        },
+      };
+    } catch (error: any) {
+      console.error(`Error fetching workspace ${workspaceId}:`, error);
+      throw error;
+    }
   }
 
   private async getAllWorkspaces(): Promise<Workspace[]> {

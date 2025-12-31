@@ -11,6 +11,10 @@ COPY package*.json ./
 # Install dependencies
 RUN npm ci
 
+COPY prisma ./prisma 
+
+RUN npx prisma generate 
+
 # Copy source code (shared + api)
 COPY src/shared ./src/shared
 COPY src/api ./src/api

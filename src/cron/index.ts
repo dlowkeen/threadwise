@@ -1,4 +1,5 @@
 import cron from "node-cron";
+import axios from "axios";
 import { config } from "../shared/utils/config";
 import { ExecutionAdapter } from "./adapters/executionAdapter";
 import { ExecutionAdapterFactory } from "./adapters/executionAdapterFactory";
@@ -11,10 +12,17 @@ interface Workspace {
 class CronOrchestrator {
   private executionAdapter: ExecutionAdapter;
   private isRunning: boolean = false;
+  private apiUrl: string;
 
   constructor() {
     // Create the appropriate execution adapter based on config
     this.executionAdapter = ExecutionAdapterFactory.createAdapter();
+
+    // Set up API URL for fetching workspaces
+    const port = config.server.port;
+    const host = config.server.host;
+    this.apiUrl = process.env.API_URL || `http://${host}:${port}`;
+
     console.log(
       `CronOrchestrator initialized with ${config.execution.mode} execution mode`
     );
@@ -39,7 +47,7 @@ class CronOrchestrator {
       console.log(`Execution mode: ${config.execution.mode}`);
 
       // Get all workspaces from database
-      const workspaces = await this.getAllWorkspaces();
+      const workspaces = await this.getAllWorkspacesIds();
       console.log(`Found ${workspaces.length} workspaces to analyze`);
 
       // Execute analysis using the configured adapter
@@ -77,17 +85,30 @@ class CronOrchestrator {
   }
 
   /**
-   * Get all workspaces from database
+   * Get all workspaces from database via API server
    */
-  private async getAllWorkspaces(): Promise<Workspace[]> {
-    // TODO: Implement database query
-    // For now, return hardcoded workspace
-    return [
-      {
-        id: "default",
-        channels: ["C06KQR10T4N"],
-      },
-    ];
+  private async getAllWorkspacesIds(): Promise<Workspace[]> {
+    try {
+      const response = await axios.get(`${this.apiUrl}/api/workspaces/ids`, {
+        timeout: 10000, // 10 second timeout
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.data.success && response.data.workspaces) {
+        return response.data.workspaces;
+      }
+      throw new Error(
+        "API returned unsuccessful response or missing workspaces"
+      );
+    } catch (error: any) {
+      console.error(
+        `Failed to fetch workspaces from API: ${error.message}`,
+        error.response?.data || ""
+      );
+      throw new Error(`Failed to fetch workspaces from API: ${error.message}`);
+    }
   }
 
   /**

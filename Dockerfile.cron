@@ -8,6 +8,10 @@ COPY package*.json ./
 # Install dependencies
 RUN npm ci
 
+COPY prisma ./prisma
+
+RUN npx prisma generate
+
 # Copy source code (shared + cron)
 COPY src/shared ./src/shared
 COPY src/cron ./src/cron
