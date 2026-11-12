@@ -27,10 +27,10 @@ data:
   
   # Kubernetes (for job execution)
   K8S_NAMESPACE: "threadwise"
-  K8S_IMAGE_NAME: "your-registry/threadwise"
-  K8S_IMAGE_TAG: "latest"
-  K8S_JOB_TTL: "3600"
-  K8S_JOB_BACKOFF_LIMIT: "3"
+  K8S_IMAGE_NAME: "curlimages/curl" # Job pods only run curl
+  K8S_IMAGE_TAG: "8.11.1"
+  K8S_TTL_SECONDS: "3600"
+  K8S_BACKOFF_LIMIT: "3"
   K8S_CPU_REQUEST: "100m"
   K8S_CPU_LIMIT: "500m"
   K8S_MEMORY_REQUEST: "128Mi"

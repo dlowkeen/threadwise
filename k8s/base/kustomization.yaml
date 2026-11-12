@@ -22,5 +22,7 @@ labels:
 
 # Image tags (will be overridden in overlays)
 images:
-  - name: your-registry/threadwise
+  - name: your-registry/threadwise-api
+    newTag: latest
+  - name: your-registry/threadwise-cron
     newTag: latest

@@ -19,9 +19,10 @@ spec:
         component: api
     spec:
       serviceAccountName: threadwise-api
+      automountServiceAccountToken: false # API never calls the K8s API
       containers:
         - name: api
-          image: your-registry/threadwise:latest
+          image: your-registry/threadwise-api:latest
           imagePullPolicy: Always
           ports:
             - name: http
@@ -94,16 +95,16 @@ spec:
                 configMapKeyRef:
                   name: threadwise-config
                   key: K8S_IMAGE_TAG
-            - name: K8S_JOB_TTL
+            - name: K8S_TTL_SECONDS
               valueFrom:
                 configMapKeyRef:
                   name: threadwise-config
-                  key: K8S_JOB_TTL
-            - name: K8S_JOB_BACKOFF_LIMIT
+                  key: K8S_TTL_SECONDS
+            - name: K8S_BACKOFF_LIMIT
               valueFrom:
                 configMapKeyRef:
                   name: threadwise-config
-                  key: K8S_JOB_BACKOFF_LIMIT
+                  key: K8S_BACKOFF_LIMIT
             - name: K8S_CPU_REQUEST
               valueFrom:
                 configMapKeyRef:

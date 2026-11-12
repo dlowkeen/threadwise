@@ -40,9 +40,6 @@ patches:
         path: /data/K8S_NAMESPACE
         value: "threadwise-prod"
       - op: replace
-        path: /data/K8S_IMAGE_TAG
-        value: "latest"
-      - op: replace
         path: /data/API_URL
         value: "http://threadwise-api.threadwise-prod.svc.cluster.local:3000"
       - op: replace
@@ -103,8 +100,11 @@ patches:
 
 # Set image tag for prod
 images:
-  - name: your-registry/threadwise  # ← Must match what's in base
-    newName: devlowkeen/threadwise   # ← Replace with your registry
+  - name: your-registry/threadwise-api
+    newName: devlowkeen/threadwise-api
+    newTag: 1abcbc4deb47db90057b676dc1fa8d4f0d0d9112
+  - name: your-registry/threadwise-cron
+    newName: devlowkeen/threadwise-cron
     newTag: 1abcbc4deb47db90057b676dc1fa8d4f0d0d9112
 
 # Common labels for prod

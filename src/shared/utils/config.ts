@@ -3,7 +3,10 @@ import { LLMProvider, LLMConfig } from "../types/llmProvider.types";
 import { JiraConfig } from "../types/jira.types";
 
 // Load environment variables from .env file
-dotenvConfig();
+// override: values in .env win over variables already set in the shell (e.g. a stale
+// DATABASE_URL inherited from an old terminal/VS Code session). In Docker/K8s there
+// is no .env file, so ConfigMap/Secret env vars are used unchanged.
+dotenvConfig({ override: true });
 
 type Environment = "development" | "staging" | "production";
 
