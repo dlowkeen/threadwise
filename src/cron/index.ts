@@ -4,11 +4,6 @@ import { config } from "../shared/utils/config";
 import { ExecutionAdapter } from "./adapters/executionAdapter";
 import { ExecutionAdapterFactory } from "./adapters/executionAdapterFactory";
 
-interface Workspace {
-  id: string;
-  channels: string[];
-}
-
 class CronOrchestrator {
   private executionAdapter: ExecutionAdapter;
   private isRunning: boolean = false;
@@ -47,11 +42,10 @@ class CronOrchestrator {
       console.log(`Execution mode: ${config.execution.mode}`);
 
       // Get all workspaces from database
-      const workspaces = await this.getAllWorkspacesIds();
-      console.log(`Found ${workspaces.length} workspaces to analyze`);
+      const workspaceIds = await this.getAllWorkspacesIds();
+      console.log(`Found ${workspaceIds.length} workspaces to analyze`);
 
       // Execute analysis using the configured adapter
-      const workspaceIds = workspaces.map((w) => w.id);
       const results = await this.executionAdapter.executeWorkspaces(
         workspaceIds
       );
@@ -87,7 +81,7 @@ class CronOrchestrator {
   /**
    * Get all workspaces from database via API server
    */
-  private async getAllWorkspacesIds(): Promise<Workspace[]> {
+  private async getAllWorkspacesIds(): Promise<string[]> {
     try {
       const response = await axios.get(`${this.apiUrl}/api/workspaces/ids`, {
         timeout: 10000, // 10 second timeout

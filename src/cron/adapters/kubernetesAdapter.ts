@@ -68,8 +68,10 @@ export class KubernetesAdapter implements ExecutionAdapter {
   private async createWorkspaceJob(workspaceId: string): Promise<void> {
     const k8sConfig = config.execution.kubernetes;
     const timestamp = Date.now();
-    const jobName =
-      `workspace-analyzer-${workspaceId}-${timestamp}`.toLowerCase();
+    // Job names must be <= 63 chars (they become a label value). UUID (36) + prefix + base36 time = ~49.
+    const jobName = `wsa-${workspaceId}-${timestamp.toString(
+      36
+    )}`.toLowerCase();
 
     const jobManifest: k8s.V1Job = {
       apiVersion: "batch/v1",

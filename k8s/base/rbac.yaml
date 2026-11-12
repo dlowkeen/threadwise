@@ -30,6 +30,6 @@ roleRef:
   name: threadwise-job-manager
 subjects:
   - kind: ServiceAccount
-    name: threadwise-api
+    name: threadwise-cron
     namespace: threadwise
 

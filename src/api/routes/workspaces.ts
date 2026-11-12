@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
-import { WorkspaceAnalyzer } from "@/services/workspaceAnalyzer";
-import { prisma } from "@/utils/prisma";
+import { WorkspaceAnalyzer } from "../../shared/services/workspaceAnalyzer";
+import { prisma } from "../../shared/utils/prisma";
 
 const router = Router();
 const analyzer = new WorkspaceAnalyzer();
@@ -130,7 +130,7 @@ router.get("/:workspaceId", async (req: Request, res: Response) => {
         teamId: workspace.slackTeamId,
         channels: workspace.channels.map((c) => c.slackChannelId),
         settings: {
-          threadsThreshold: workspace.threadThreshold,
+          threadThreshold: workspace.threadThreshold,
         },
       },
     });

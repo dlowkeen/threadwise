@@ -21,7 +21,7 @@ import { taskExtractionPrompt } from "../prompts/filterPrompt";
 import { jiraClient, JiraClientManager } from "../clients/jira";
 import axios from "axios";
 import { Workspace } from "@/types/workspace.types";
-import { validateThreadThreshold } from "@/helpers/validateWorkspaceData";
+import { validateThreadThreshold } from "../helpers/validateWorkspaceData";
 
 interface AnalysisResult {
   workspaceId: string;
@@ -225,13 +225,16 @@ export class WorkspaceAnalyzer {
       if (!!category && category !== "casual_chat") {
         //  still need to handle the case here of resolution being resolved.
         //what if they are not summarized yet but they're turn out to be resolved. We don't want to create jira ticket for those.
-        const extractedTask: JiraTasksObj = await this.extractTasks(
-          llmClient,
-          taskExtractionPrompt,
-          enhancedContext
-        );
-        console.log(extractedTask);
-        await jiraClient.createIssueInBacklog(workspace.id, extractedTask);
+        // TEMPORARILY DISABLED: the Jira site (JIRA_BASE_URL) is unavailable, and a Jira
+        // failure aborts the whole thread (no summary, no Slack reply). Re-enable once the
+        // site is fixed, ideally wrapped in try/catch so Jira errors don't block summaries.
+        // const extractedTask: JiraTasksObj = await this.extractTasks(
+        //   llmClient,
+        //   taskExtractionPrompt,
+        //   enhancedContext
+        // );
+        // console.log(extractedTask);
+        // await jiraClient.createIssueInBacklog(workspace.id, extractedTask);
 
         const summarizedResponse = await this.summarizeResponse(
           llmClient,
