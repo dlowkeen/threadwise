@@ -1,6 +1,5 @@
 import { Workspace } from "@/types/workspace.types";
 
-
 /**
  * Validates and clamps thread threshold value
  */
