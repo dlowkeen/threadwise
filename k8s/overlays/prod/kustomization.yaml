@@ -102,10 +102,10 @@ patches:
 images:
   - name: your-registry/threadwise-api
     newName: devlowkeen/threadwise-api
-    newTag: 01eb5a6915c0c3028ea05ce3bf71a2f5dc5cfb51
+    newTag: 1abcbc4deb47db90057b676dc1fa8d4f0d0d9112
   - name: your-registry/threadwise-cron
     newName: devlowkeen/threadwise-cron
-    newTag: 01eb5a6915c0c3028ea05ce3bf71a2f5dc5cfb51
+    newTag: 1abcbc4deb47db90057b676dc1fa8d4f0d0d9112
 
 # Common labels for prod
 labels:
